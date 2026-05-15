@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("STUDENT")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  enrollments         Enrollment[]
+  assignmentProgress  AssignmentProgress[]
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  fullName  String
+  email     String
+  phone     String
+  program   String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Course {
+  id          String         @id @default(cuid())
+  code        String
+  title       String
+  enrollments Enrollment[]
+  assignments Assignment[]
+}
+
+model Enrollment {
+  id       String @id @default(cuid())
+  userId   String
+  courseId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Assignment {
+  id        String   @id @default(cuid())
+  courseId  String
+  title     String
+  dueDate   DateTime
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress  AssignmentProgress[]
+}
+
+model AssignmentProgress {
+  id           String     @id @default(cuid())
+  userId       String
+  assignmentId String
+  status       String     @default("PENDING")
+  grade        Int?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment   Assignment  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, assignmentId])
+}
