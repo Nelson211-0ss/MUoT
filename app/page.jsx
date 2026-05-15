@@ -3,46 +3,60 @@ import Hero from '@/components/Hero'
 import FeaturesSection from '@/components/FeaturesSection'
 import ProgramCard from '@/components/ProgramCard'
 import Footer from '@/components/Footer'
+import { HomeSpotlightSection, HomeCtaSection } from '@/components/HomePageSections'
+import { homeProgramCovers } from '@/lib/siteImages'
 
 export default function Home() {
   return (
-    <main className="bg-white min-h-screen">
+    <main className="bg-white min-h-screen flex flex-col">
       <Navbar />
       <Hero />
       <FeaturesSection />
+      <HomeSpotlightSection />
 
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 pb-20">
-        <div className="text-center mb-10 md:mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3">Our Popular Programs</h2>
-          <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
-            Explore our in-demand IT programs and start your journey today.
+      <section className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-14 md:py-20 pb-16 md:pb-24 flex-1">
+        <div className="text-center mb-10 md:mb-14 max-w-3xl mx-auto">
+          <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-2">Programs</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3">Popular pathways</h2>
+          <p className="text-gray-500 text-base md:text-lg leading-relaxed">
+            From code to cloud, pick a concentration that matches your goals—each track blends theory, labs, and
+            portfolio work.
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-7 items-stretch">
           <ProgramCard
             variant="home"
             title="Software Development"
-            desc="Learn modern web and mobile application development."
+            desc="Learn modern web and mobile application development with hands-on projects."
+            coverImage={homeProgramCovers.software}
+            coverAlt="Laptop with code on screen representing software development"
           />
           <ProgramCard
             variant="home"
             title="Cybersecurity"
-            desc="Protect systems and networks in the digital world."
+            desc="Protect systems and networks with ethical security practices and defensive tooling."
+            coverImage={homeProgramCovers.cybersecurity}
+            coverAlt="Network security and digital protection concept"
           />
           <ProgramCard
             variant="home"
             title="Data Science"
-            desc="Analyze data and build AI-powered systems."
+            desc="Analyze data, communicate insights, and build models that support real decisions."
+            coverImage={homeProgramCovers.dataScience}
+            coverAlt="Data analytics and charts on a display"
           />
           <ProgramCard
             variant="home"
             title="Cloud Computing"
-            desc="Deploy and manage applications in the cloud."
+            desc="Deploy and manage resilient applications on leading cloud platforms."
+            coverImage={homeProgramCovers.cloud}
+            coverAlt="Cloud technology and global infrastructure visualization"
           />
         </div>
       </section>
 
+      <HomeCtaSection />
       <Footer />
     </main>
   )

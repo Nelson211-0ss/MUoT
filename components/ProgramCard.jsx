@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Code2, Shield, BarChart3, Cloud } from 'lucide-react'
 
@@ -47,26 +48,42 @@ const programStyles = {
   },
 }
 
-export default function ProgramCard({ title, desc, variant = 'home' }) {
+export default function ProgramCard({ title, desc, variant = 'home', coverImage, coverAlt }) {
   const style = programStyles[title] || programStyles['Software Development']
   const Icon = style.icon
 
   if (variant === 'home') {
     return (
       <motion.div
-        whileHover={{ y: -2 }}
-        className="bg-white rounded-xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100 h-full"
+        whileHover={{ y: -4 }}
+        className="bg-white rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(7,28,77,0.08)] border border-gray-100/90 h-full flex flex-col"
       >
-        <div className="flex gap-4">
-          <div className={`shrink-0 w-12 h-12 rounded-full ${style.iconBg} flex items-center justify-center ${style.iconColor}`}>
-            <Icon size={22} strokeWidth={2} />
+        {coverImage ? (
+          <div className="relative aspect-[16/10] w-full shrink-0">
+            <Image
+              src={coverImage}
+              alt={coverAlt || `${title} at Magwi University of Technology`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/35 to-transparent pointer-events-none" aria-hidden />
           </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-primary text-[15px] mb-1.5 leading-snug">{title}</h3>
-            <p className="text-sm text-gray-500 leading-relaxed mb-3">{desc}</p>
-            <Link href="/programs" className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
-              View Program →
-            </Link>
+        ) : null}
+        <div className="p-5 flex gap-4 flex-1 flex-col">
+          <div className="flex gap-4 flex-1">
+            <div
+              className={`shrink-0 w-12 h-12 rounded-full ${style.iconBg} flex items-center justify-center ${style.iconColor}`}
+            >
+              <Icon size={22} strokeWidth={2} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-bold text-primary text-[15px] mb-1.5 leading-snug">{title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed mb-3">{desc}</p>
+              <Link href="/programs" className="text-sm font-semibold text-[#0636a8] hover:text-primary transition-colors">
+                View Program →
+              </Link>
+            </div>
           </div>
         </div>
       </motion.div>

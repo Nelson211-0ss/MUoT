@@ -6,10 +6,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Globe, GraduationCap, Code2 } from 'lucide-react'
 
-const HERO_IMAGES = [
-  { src: '/images/student1.png', alt: 'MUT student learning with laptop' },
-  { src: '/images/student2.png', alt: 'MUT student working online at Magwi University' },
-]
+import { homeHeroSlides as HERO_IMAGES } from '@/lib/siteImages'
 
 const SLIDE_INTERVAL_MS = 5500
 
@@ -106,16 +103,16 @@ export default function Hero() {
                   animate={{ x: 0, opacity: 1 }}
                   exit={reduceMotion ? undefined : { x: '-25%', opacity: 0 }}
                   transition={slideTransition}
-                  className="absolute inset-0 flex items-end justify-center lg:justify-end"
+                  className="absolute inset-0 flex items-center justify-center lg:justify-end"
                 >
-                  <div className="relative h-full w-full max-w-[700px]">
+                  <div className="relative h-[92%] w-full max-w-[min(100%,560px)] rounded-2xl overflow-hidden shadow-[0_28px_64px_-12px_rgba(0,0,0,0.45)] ring-2 ring-white/15">
                     <Image
                       src={current.src}
                       alt={current.alt}
                       fill
                       priority={slide === 0}
-                      sizes="(max-width: 1024px) 100vw, 640px"
-                      className="object-contain object-bottom object-right border-0 shadow-none rounded-none ring-0 outline-none bg-transparent select-none pointer-events-none"
+                      sizes="(max-width: 1024px) 100vw, 560px"
+                      className="object-cover object-center select-none pointer-events-none"
                     />
                   </div>
                 </motion.div>
