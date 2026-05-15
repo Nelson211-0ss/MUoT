@@ -7,8 +7,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 export default function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const nextUrl = searchParams.get('next') || '/student-portal'
-
   const [mode, setMode] = useState('login')
   const [status, setStatus] = useState(null)
   const [pending, setPending] = useState(false)
@@ -55,7 +53,24 @@ export default function LoginForm() {
         setStatus({ type: 'error', message: data.error || 'Something went wrong.' })
         return
       }
-      router.push(nextUrl)
+
+      let dest = searchParams.get('next') || '/student-portal'
+      if (data.user?.role === 'ADMIN') {
+        if (
+          dest === '/student-portal' ||
+          dest.startsWith('/student-portal') ||
+          dest === '/lecturer-portal' ||
+          dest.startsWith('/lecturer-portal')
+        ) {
+          dest = '/admin'
+        }
+      } else if (data.user?.role === 'LECTURER') {
+        if (dest === '/student-portal' || dest.startsWith('/student-portal')) {
+          dest = '/lecturer-portal'
+        }
+      }
+
+      router.push(dest)
       router.refresh()
     } catch {
       setStatus({ type: 'error', message: 'Network error. Try again.' })

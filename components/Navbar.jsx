@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Menu, X, ChevronDown, LogIn, PenSquare } from 'lucide-react'
 import Logo from '@/components/Logo'
 import SocialLinks from '@/components/SocialLinks'
@@ -20,7 +20,26 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const [sessionUser, setSessionUser] = useState(null)
 
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then((r) => (r.status === 200 ? r.json() : null))
+      .then((d) => setSessionUser(d?.user ?? null))
+      .catch(() => setSessionUser(null))
+  }, [])
+
+  const navLinks = useMemo(() => {
+    const items = [...links]
+    const i = items.findIndex((l) => l.href === '/student-portal')
+    if (sessionUser?.role === 'ADMIN' && i >= 0) {
+      items.splice(i + 1, 0, { href: '/admin', label: 'Admin', dropdown: false })
+    }
+    if (sessionUser?.role === 'LECTURER' && i >= 0) {
+      items.splice(i + 1, 0, { href: '/lecturer-portal', label: 'Lecturer Portal', dropdown: false })
+    }
+    return items
+  }, [sessionUser])
   return (
     <header className="sticky top-0 z-50 w-full shrink-0 border-b border-gray-100 bg-white shadow-sm">
       <nav className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-3 flex items-center justify-between gap-4">
@@ -40,12 +59,15 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden xl:flex items-center gap-6 2xl:gap-8 text-[15px] font-medium text-gray-700">
-          {links.map((link) => {
+          {navLinks.map((link) => {
             const active = pathname === link.href
+            const noPrefetch =
+              link.href === '/student-portal' || link.href === '/lecturer-portal' || link.href === '/admin'
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={noPrefetch ? false : undefined}
                 className={`relative pb-1 flex items-center gap-1 hover:text-primary transition-colors ${
                   active ? 'text-primary' : ''
                 }`}
@@ -89,11 +111,21 @@ export default function Navbar() {
 
       {open && (
         <div className="xl:hidden border-t px-4 py-4 flex flex-col gap-3 font-medium text-gray-800 bg-white">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} onClick={() => setOpen(false)} className="hover:text-primary">
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const noPrefetch =
+              link.href === '/student-portal' || link.href === '/lecturer-portal' || link.href === '/admin'
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={noPrefetch ? false : undefined}
+                onClick={() => setOpen(false)}
+                className="hover:text-primary"
+              >
+                {link.label}
+              </Link>
+            )
+          })}
           <div className="flex flex-wrap gap-3 pt-2">
             <Link
               href="/login"

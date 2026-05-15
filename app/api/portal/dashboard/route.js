@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server'
-import { getSessionFromCookies } from '@/lib/auth'
 import { getPortalDashboard } from '@/lib/portal'
+import { getStudentOrError } from '@/lib/studentAuth'
 
 export async function GET() {
-  const session = await getSessionFromCookies()
-  if (!session?.userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { response, student } = await getStudentOrError()
+  if (response) return response
 
-  const data = await getPortalDashboard(session.userId)
+  const data = await getPortalDashboard(student.id)
   if (!data) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

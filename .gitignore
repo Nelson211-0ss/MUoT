@@ -28,6 +28,9 @@
 /prisma/dev.db
 /prisma/dev.db-journal
 
+# lecturer uploads (local dev)
+/storage
+
 # debug
 npm-debug.log*
 yarn-debug.log*
