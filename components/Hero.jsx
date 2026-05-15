@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { Globe, GraduationCap, Code2 } from 'lucide-react'
+import { Wifi, GraduationCap, BookOpen } from 'lucide-react'
 
 import { homeHeroSlides as HERO_IMAGES } from '@/lib/siteImages'
 
@@ -48,9 +48,9 @@ export default function Hero() {
           <circle cx="75%" cy="65%" r="4" fill="#5b9bd5" />
           <circle cx="90%" cy="35%" r="4" fill="#5b9bd5" />
         </svg>
-        <Globe className="absolute top-[18%] right-[28%] w-16 h-16 text-blue-400/25" strokeWidth={1} />
+        <Wifi className="absolute top-[18%] right-[28%] w-16 h-16 text-blue-400/25" strokeWidth={1} />
         <GraduationCap className="absolute top-[12%] right-[12%] w-20 h-20 text-blue-400/20" strokeWidth={1} />
-        <Code2 className="absolute bottom-[28%] right-[8%] w-14 h-14 text-blue-400/25" strokeWidth={1} />
+        <BookOpen className="absolute bottom-[28%] right-[8%] w-14 h-14 text-blue-400/25" strokeWidth={1} />
       </div>
 
       <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-10 pb-12 md:pt-14 md:pb-16">
@@ -95,7 +95,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="relative z-10 flex justify-center lg:justify-end w-full"
           >
-            <div className="relative w-full max-w-[min(100%,640px)] h-[280px] sm:h-[360px] md:h-[420px] lg:h-[460px] overflow-hidden">
+            <div className="relative w-full max-w-[min(100%,800px)] lg:max-w-none h-[360px] sm:h-[440px] md:h-[520px] lg:h-[540px] xl:h-[600px] overflow-hidden">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={current.src}
@@ -103,16 +103,16 @@ export default function Hero() {
                   animate={{ x: 0, opacity: 1 }}
                   exit={reduceMotion ? undefined : { x: '-25%', opacity: 0 }}
                   transition={slideTransition}
-                  className="absolute inset-0 flex items-center justify-center lg:justify-end"
+                  className="absolute inset-0 flex items-end justify-center lg:justify-end"
                 >
-                  <div className="relative h-[92%] w-full max-w-[min(100%,560px)] rounded-2xl overflow-hidden shadow-[0_28px_64px_-12px_rgba(0,0,0,0.45)] ring-2 ring-white/15">
+                  <div className="relative h-full w-full">
                     <Image
                       src={current.src}
                       alt={current.alt}
                       fill
                       priority={slide === 0}
-                      sizes="(max-width: 1024px) 100vw, 560px"
-                      className="object-cover object-center select-none pointer-events-none"
+                      sizes="(max-width: 1024px) 100vw, min(820px, 50vw)"
+                      className="object-contain object-bottom select-none pointer-events-none"
                     />
                   </div>
                 </motion.div>

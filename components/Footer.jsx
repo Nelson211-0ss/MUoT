@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { BookOpen, MapPin, Mail, Phone, Compass, ArrowRight } from 'lucide-react'
 import Logo from '@/components/Logo'
+import SocialLinks from '@/components/SocialLinks'
 
 export default function Footer() {
   return (
@@ -14,11 +16,16 @@ export default function Footer() {
                 <p className="text-secondary text-xs font-semibold">Innovating the Future</p>
               </div>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed">Building Africa&apos;s Digital Future.</p>
+            <p className="text-gray-300 text-sm leading-relaxed mb-5">Building Africa&apos;s Digital Future.</p>
+            <p className="text-secondary text-xs font-semibold uppercase tracking-wider mb-2">Follow us</p>
+            <SocialLinks variant="dark" />
           </div>
 
           <div>
-            <h3 className="font-bold mb-4 text-secondary">Programs</h3>
+            <h3 className="font-bold mb-4 text-secondary inline-flex items-center gap-2">
+              <BookOpen className="w-4 h-4 shrink-0" strokeWidth={1.75} aria-hidden />
+              Programs
+            </h3>
             <ul className="space-y-2 text-gray-300 text-sm">
               <li>Software Engineering</li>
               <li>Cybersecurity</li>
@@ -28,25 +35,32 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold mb-4 text-secondary">Quick Links</h3>
+            <h3 className="font-bold mb-4 text-secondary inline-flex items-center gap-2">
+              <Compass className="w-4 h-4 shrink-0" strokeWidth={1.75} aria-hidden />
+              Quick Links
+            </h3>
             <ul className="space-y-2 text-gray-300 text-sm">
               <li>
-                <Link href="/admissions" className="hover:text-white transition-colors">
+                <Link href="/admissions" className="inline-flex items-center gap-2 hover:text-white transition-colors group">
+                  <ArrowRight className="w-3.5 h-3.5 text-secondary shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} aria-hidden />
                   Admissions
                 </Link>
               </li>
               <li>
-                <Link href="/student-portal" className="hover:text-white transition-colors">
+                <Link href="/student-portal" className="inline-flex items-center gap-2 hover:text-white transition-colors group">
+                  <ArrowRight className="w-3.5 h-3.5 text-secondary shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} aria-hidden />
                   Student Portal
                 </Link>
               </li>
               <li>
-                <Link href="/news" className="hover:text-white transition-colors">
+                <Link href="/news" className="inline-flex items-center gap-2 hover:text-white transition-colors group">
+                  <ArrowRight className="w-3.5 h-3.5 text-secondary shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} aria-hidden />
                   News
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white transition-colors">
+                <Link href="/contact" className="inline-flex items-center gap-2 hover:text-white transition-colors group">
+                  <ArrowRight className="w-3.5 h-3.5 text-secondary shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} aria-hidden />
                   Contact
                 </Link>
               </li>
@@ -55,9 +69,22 @@ export default function Footer() {
 
           <div>
             <h3 className="font-bold mb-4 text-secondary">Contact</h3>
-            <p className="text-gray-300 text-sm">Magwi, South Sudan</p>
-            <p className="text-gray-300 text-sm mt-2">info@mut.edu</p>
-            <p className="text-gray-300 text-sm mt-1">+211 XXX XXX XXX</p>
+            <ul className="space-y-3 text-gray-300 text-sm">
+              <li className="flex gap-3 items-start leading-snug">
+                <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-secondary" strokeWidth={1.75} aria-hidden />
+                <span>Magwi, South Sudan</span>
+              </li>
+              <li className="flex gap-3 items-start">
+                <Mail className="w-4 h-4 shrink-0 mt-0.5 text-secondary" strokeWidth={1.75} aria-hidden />
+                <a href="mailto:info@mut.edu" className="hover:text-white transition-colors">
+                  info@mut.edu
+                </a>
+              </li>
+              <li className="flex gap-3 items-start">
+                <Phone className="w-4 h-4 shrink-0 mt-0.5 text-secondary" strokeWidth={1.75} aria-hidden />
+                <span>+211 XXX XXX XXX</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

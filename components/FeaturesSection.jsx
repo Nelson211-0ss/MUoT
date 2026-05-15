@@ -1,29 +1,29 @@
-import { Laptop, Award, Users, FileBadge } from 'lucide-react'
+import { MonitorSmartphone, Briefcase, UsersRound, BadgeCheck } from 'lucide-react'
 
 const features = [
   {
-    icon: Laptop,
+    icon: MonitorSmartphone,
     title: '100% Online Learning',
     desc: 'Study from anywhere with flexible online courses.',
     iconBg: 'bg-sky-100',
     iconColor: 'text-sky-600',
   },
   {
-    icon: Award,
+    icon: Briefcase,
     title: 'Industry Relevant',
     desc: 'Curriculum aligned with current tech industry needs.',
     iconBg: 'bg-amber-100',
     iconColor: 'text-amber-700',
   },
   {
-    icon: Users,
+    icon: UsersRound,
     title: 'Expert Instructors',
     desc: 'Learn from experienced professionals and educators.',
     iconBg: 'bg-emerald-100',
     iconColor: 'text-emerald-700',
   },
   {
-    icon: FileBadge,
+    icon: BadgeCheck,
     title: 'Recognized Certificates',
     desc: 'Earn credentials valued by employers worldwide.',
     iconBg: 'bg-violet-100',

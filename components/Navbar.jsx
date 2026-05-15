@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown, LogIn, PenSquare } from 'lucide-react'
 import Logo from '@/components/Logo'
+import SocialLinks from '@/components/SocialLinks'
 
 const links = [
   { href: '/', label: 'Home' },
@@ -21,7 +22,7 @@ export default function Navbar() {
   const pathname = usePathname()
 
   return (
-    <header className="w-full bg-white border-b border-gray-100">
+    <header className="sticky top-0 z-50 w-full shrink-0 border-b border-gray-100 bg-white shadow-sm">
       <nav className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-3 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3 shrink-0">
           <Logo className="h-12 w-12 sm:h-14 sm:w-14 shrink-0" />
@@ -62,14 +63,16 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3 shrink-0">
           <Link
             href="/login"
-            className="border border-gray-300 text-gray-800 px-5 py-2 rounded-md text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+            className="border border-gray-300 text-gray-800 px-5 py-2 rounded-md text-sm font-medium hover:border-primary hover:text-primary transition-colors inline-flex items-center gap-2"
           >
+            <LogIn size={17} strokeWidth={1.75} aria-hidden />
             Login
           </Link>
           <Link
             href="/admissions"
-            className="bg-secondary text-primary px-5 py-2 rounded-md text-sm font-bold hover:brightness-95 transition-all"
+            className="bg-secondary text-primary px-5 py-2 rounded-md text-sm font-bold hover:brightness-95 transition-all inline-flex items-center gap-2"
           >
+            <PenSquare size={17} strokeWidth={1.75} aria-hidden />
             Apply Now
           </Link>
         </div>
@@ -91,17 +94,27 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="flex gap-3 pt-2">
-            <Link href="/login" onClick={() => setOpen(false)} className="border px-4 py-2 rounded-md text-sm">
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="border px-4 py-2 rounded-md text-sm inline-flex items-center gap-2"
+            >
+              <LogIn size={16} strokeWidth={1.75} aria-hidden />
               Login
             </Link>
             <Link
               href="/admissions"
               onClick={() => setOpen(false)}
-              className="bg-secondary text-primary px-4 py-2 rounded-md text-sm font-bold"
+              className="bg-secondary text-primary px-4 py-2 rounded-md text-sm font-bold inline-flex items-center gap-2"
             >
+              <PenSquare size={16} strokeWidth={1.75} aria-hidden />
               Apply Now
             </Link>
+          </div>
+          <div className="pt-5 mt-4 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Follow us</p>
+            <SocialLinks variant="light" />
           </div>
         </div>
       )}
