@@ -42,16 +42,16 @@ export default function ApplicantProfilePage() {
         <input
           name="name"
           defaultValue={defaultName}
-          className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm dark:border-white/15 dark:bg-slate-950"
+          className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
           required
           minLength={2}
         />
       </label>
-      <p className="text-xs text-slate-500">Account email: <span className="font-medium text-slate-700 dark:text-slate-300">{snapshot.user?.email}</span></p>
+      <p className="text-xs text-slate-500">Account email: <span className="font-medium text-slate-700">{snapshot.user?.email}</span></p>
 
       {status?.msg ? <p className={`text-xs ${status.kind === 'ok' ? 'text-emerald-600' : 'text-red-600'}`}>{status.msg}</p> : null}
 
-      <button type="submit" className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-secondary dark:text-primary">
+      <button type="submit" className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">
         Save
       </button>
     </form>

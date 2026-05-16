@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { ClipboardList, CreditCard, Users } from 'lucide-react'
+
+import { PageHeader } from '@/components/premium-ui/page-header'
+import { ProgressBar } from '@/components/premium-ui/progress-bar'
+import { StatCard } from '@/components/premium-ui/stat-card'
 import { ADMISSION_STATUS } from '@/lib/admissions/constants'
 import { P, normalizeRoleSlug } from '@/lib/rbac/constants'
 
@@ -33,6 +38,14 @@ export default function AdmissionManagementWorkspace({ viewer, permissionKeys })
   const [waiveEnrollmentFee, setWaiveEnrollmentFee] = useState(false)
 
   const barMax = useMemo(() => Math.max(...(analytics?.byStatus?.map((b) => b.count) ?? [1]), 1), [analytics])
+
+  const pipelineStats = useMemo(() => {
+    const total = applications.length
+    const inReview = applications.filter((a) => a.status === 'UNDER_REVIEW' || a.status === 'SUBMITTED').length
+    const awaitingPay = applications.filter((a) => a.status === 'AWAITING_PAYMENT').length
+    const enrolled = applications.filter((a) => a.status === 'ENROLLED').length
+    return { total, inReview, awaitingPay, enrolled }
+  }, [applications])
 
   const reloadApplicationsList = useCallback(async () => {
     const qs = new URLSearchParams()
@@ -138,18 +151,17 @@ export default function AdmissionManagementWorkspace({ viewer, permissionKeys })
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-bold text-primary text-xl">Admissions HQ</h2>
-        <p className="text-sm text-gray-600 mt-1">
-          Desk session <span className="font-semibold">{viewer?.email ?? ''}</span> · All applicant dossiers submitted through the wizard appear here (
-          submissions float to the top by default sorting).
-        </p>
-        <p className="text-xs text-gray-500 mt-2">
-          <strong>Admit applicant</strong> records a provisional offer from <strong>Under review</strong> or{' '}
-          <strong>Submitted</strong> (covers online pipelines and registrar-recorded dossiers). Finance desks verify acceptance payments unless you waive the
-          levy on enrollment. <strong>Complete enrollment</strong> issues the provisional 10‑digit learner login and STUDENT SSO.
-        </p>
+    <div className="space-y-8">
+      <PageHeader
+        title="Applications pipeline"
+        description={`${viewer?.email ?? ''} · Admit from Submitted/Under review, verify payments, then complete enrollment.`}
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="In pipeline" value={String(pipelineStats.total)} hint="Matching current filters" icon={ClipboardList} />
+        <StatCard label="Awaiting review" value={String(pipelineStats.inReview)} hint="Submitted + under review" icon={Users} />
+        <StatCard label="Awaiting payment" value={String(pipelineStats.awaitingPay)} hint="Provisional admits" icon={CreditCard} />
+        <StatCard label="Enrolled" value={String(pipelineStats.enrolled)} hint="Learner numbers issued" icon={Users} trend="up" />
       </div>
 
       {allow(P.ADMISSIONS_MANUAL_APPLICATION, P.ADMISSIONS_MANAGE) ? (
@@ -163,35 +175,35 @@ export default function AdmissionManagementWorkspace({ viewer, permissionKeys })
       ) : null}
 
       {analytics ? (
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="font-semibold text-primary mb-3">Pipeline analytics</p>
-          <div className="space-y-2 max-w-xl">
+        <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Pipeline analytics</p>
+          <div className="mt-4 max-w-2xl space-y-4">
             {analytics.byStatus.map((stat) => (
-              <div key={stat.status} className="flex items-center gap-3">
-                <span className="w-32 text-[11px] uppercase font-bold text-gray-500">{stat.status}</span>
-                <div className="flex-1 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    aria-hidden
-                    className="h-2 rounded-full bg-secondary transition-all"
-                    style={{ width: `${Math.min(100, (stat.count / barMax) * 100)}%` }}
-                  />
+              <div key={stat.status}>
+                <div className="mb-1 flex justify-between text-xs">
+                  <span className="font-medium uppercase text-slate-600">{stat.status.replace(/_/g, ' ')}</span>
+                  <span className="font-semibold text-slate-900">{stat.count}</span>
                 </div>
-                <span className="text-xs font-semibold">{stat.count}</span>
+                <ProgressBar value={Math.min(100, (stat.count / barMax) * 100)} />
               </div>
             ))}
           </div>
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap gap-3 mb-4">
+      <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap gap-3">
           <input
             placeholder="Filter by email/name"
             value={filter}
             onChange={(ev) => setFilter(ev.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px]"
+            className="min-w-[200px] flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
-          <select value={statusFilter} onChange={(ev) => setStatusFilter(ev.target.value)} className="border rounded-lg px-3 py-2 text-sm">
+          <select
+            value={statusFilter}
+            onChange={(ev) => setStatusFilter(ev.target.value)}
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+          >
             <option value="">All statuses</option>
             {Object.values(ADMISSION_STATUS).map((st) => (
               <option key={st} value={st}>
@@ -200,20 +212,24 @@ export default function AdmissionManagementWorkspace({ viewer, permissionKeys })
             ))}
           </select>
         </div>
-        <div className="grid lg:grid-cols-5 gap-4">
-          <div className="lg:col-span-2 max-h-[420px] overflow-y-auto border rounded-xl divide-y text-xs">
+        <div className="grid gap-4 lg:grid-cols-5">
+          <div className="max-h-[min(70vh,520px)] overflow-y-auto rounded-xl border border-slate-200 divide-y text-xs lg:col-span-2">
             {applications.length === 0 ? (
-              <div className="px-4 py-8 text-gray-500 text-center leading-relaxed">No applications matched — widen filters or wait for applicants to submit.</div>
+              <div className="px-4 py-10 text-center leading-relaxed text-slate-500">
+                No applications matched — widen filters or wait for applicants to submit.
+              </div>
             ) : (
               applications.map((row) => (
                 <button
                   type="button"
                   key={row.id}
                   onClick={() => setSelectedId(row.id)}
-                  className={`block w-full text-left px-3 py-3 hover:bg-slate-50 ${selectedId === row.id ? 'bg-secondary/30' : ''}`}
+                  className={`block w-full text-left px-3 py-3 transition-colors hover:bg-slate-50 ${
+                    selectedId === row.id ? 'bg-secondary/15 ring-1 ring-inset ring-secondary/50' : ''
+                  }`}
                 >
-                  <span className="font-semibold text-primary block">{row.applicant?.email}</span>
-                  <span className="text-gray-600">{row.program?.name ?? 'Program TBD'}</span>
+                  <span className="block font-semibold text-slate-900">{row.applicant?.email}</span>
+                  <span className="text-slate-600">{row.program?.name ?? 'Program TBD'}</span>
                   <span className="mt-2 block flex flex-wrap items-center gap-2">
                     <Badge tone="neutral">{row.status}</Badge>
                     {row.studentNumber ? <span className="text-[10px] font-mono text-emerald-800">#{row.studentNumber}</span> : null}
@@ -223,13 +239,13 @@ export default function AdmissionManagementWorkspace({ viewer, permissionKeys })
             )}
           </div>
 
-          <div className="lg:col-span-3 border rounded-xl p-4 bg-slate-50/80 text-xs max-h-[420px] overflow-y-auto space-y-4">
+          <div className="max-h-[min(70vh,520px)] space-y-4 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/60 p-4 text-xs lg:col-span-3">
             {detail ? (
               <>
                 <div className="flex justify-between gap-3">
                   <div>
-                    <p className="text-lg font-bold text-primary">{detail.fullName ?? 'Applicant'}</p>
-                    <p className="text-gray-600">{detail.faculty?.name}</p>
+                    <p className="text-lg font-bold text-slate-900">{detail.fullName ?? 'Applicant'}</p>
+                    <p className="text-slate-600">{detail.faculty?.name}</p>
                   </div>
                   <Badge tone="good">{detail.status}</Badge>
                 </div>
@@ -346,9 +362,9 @@ function RegistrarManualApplicationForm({ reloadList }) {
   const programsFlat = catalog?.faculties?.flatMap((f) => (f.programs ?? []).map((p) => ({ ...p, facultyName: f.name }))) ?? []
 
   return (
-    <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
-      <h3 className="font-semibold text-primary">Record offline / paper application</h3>
-      <p className="mt-1 text-xs text-gray-600 max-w-xl">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="font-semibold text-slate-900">Record offline / paper application</h3>
+      <p className="mt-1 max-w-xl text-xs text-slate-600">
         Creates applicant SSO (when the email is new) and drops a <strong>SUBMITTED</strong> dossier at the desk. Share the provisional password securely so
         the learner can refine details online if needed — then admit and complete enrollment as usual.
       </p>
@@ -400,7 +416,7 @@ function RegistrarManualApplicationForm({ reloadList }) {
           <button
             type="submit"
             disabled={saving}
-            className="sm:col-span-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className="sm:col-span-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50"
           >
             {saving ? 'Saving…' : 'File submitted application'}
           </button>
@@ -422,19 +438,34 @@ function DeskActions({ allow, mutate, finalizeEnrollment, detail, canFinalizeEnr
   return (
     <div className="space-y-2 border-b pb-3">
       <div className="flex flex-wrap gap-2">
-        <button disabled={!canReview} type="button" className="text-xs px-3 py-1 rounded-lg border bg-white disabled:opacity-40" onClick={() => mutate({ action: 'setStatus', status: 'UNDER_REVIEW' })}>
+        <button
+          disabled={!canReview}
+          type="button"
+          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+          onClick={() => mutate({ action: 'setStatus', status: 'UNDER_REVIEW' })}
+        >
           Move under review
         </button>
-        <button disabled={!canReview} type="button" className="text-xs px-3 py-1 rounded-lg border bg-white disabled:opacity-40" onClick={() => mutate({ action: 'setStatus', status: 'AWAITING_DOCUMENTS' })}>
+        <button
+          disabled={!canReview}
+          type="button"
+          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+          onClick={() => mutate({ action: 'setStatus', status: 'AWAITING_DOCUMENTS' })}
+        >
           Request dossier uplift
         </button>
-        <button disabled={!canReview} type="button" className="text-xs px-3 py-1 rounded-lg border bg-white disabled:opacity-40" onClick={() => mutate({ action: 'setStatus', status: 'REJECTED' })}>
+        <button
+          disabled={!canReview}
+          type="button"
+          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+          onClick={() => mutate({ action: 'setStatus', status: 'REJECTED' })}
+        >
           Reject intake
         </button>
         <button
           disabled={!canReview}
           type="button"
-          className="text-xs px-3 py-2 rounded-xl bg-secondary font-bold disabled:opacity-40"
+          className="rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white disabled:opacity-40"
           title="Works from Under review or straight from Submitted dossiers · notifies applicant and exposes acceptance levy"
           onClick={() => mutate({ action: 'setStatus', status: 'PROVISIONAL_ACCEPT' })}
         >
@@ -453,7 +484,7 @@ function DeskActions({ allow, mutate, finalizeEnrollment, detail, canFinalizeEnr
           <button
             disabled={!canReview}
             type="button"
-            className="text-xs px-3 py-2 rounded-xl bg-primary text-white disabled:opacity-40"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-40"
             onClick={() =>
               mutate({
                 action: 'comment',
@@ -476,7 +507,7 @@ function DeskActions({ allow, mutate, finalizeEnrollment, detail, canFinalizeEnr
                     ? 'Finance must verify PSP payment or waive the levy'
                     : 'Issues MUoT student number + STUDENT SSO'
             }
-            className="text-xs px-3 py-2 rounded-xl border border-primary text-primary font-bold disabled:opacity-40"
+            className="rounded-xl border-2 border-primary px-3 py-2 text-xs font-bold text-primary disabled:opacity-40"
             onClick={() => finalizeEnrollment()}
           >
             Complete enrollment · issue student number

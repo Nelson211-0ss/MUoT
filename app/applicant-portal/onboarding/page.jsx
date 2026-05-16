@@ -15,7 +15,7 @@ export default function ApplicantOnboardingPage() {
   }, [])
 
   return (
-    <div className="max-w-xl space-y-5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+    <div className="max-w-xl space-y-5 text-sm leading-relaxed text-slate-600">
       <p>Your dossier is complete. Sign out and sign back in so your session upgrades to STUDENT SSO when the registrar has promoted your account.</p>
       <ol className="list-decimal space-y-2 pl-6">
         <li>Download your admissions letter preview if available.</li>
@@ -25,7 +25,7 @@ export default function ApplicantOnboardingPage() {
       <Link
         href="/student-portal"
         prefetch={false}
-        className="inline-flex rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-secondary dark:text-primary"
+        className="inline-flex rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90"
       >
         Open student portal (after signing in as student)
       </Link>

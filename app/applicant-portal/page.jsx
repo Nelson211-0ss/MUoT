@@ -2,8 +2,15 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { Bell, FileText, GraduationCap, Upload } from 'lucide-react'
+
+import { PageHeader } from '@/components/premium-ui/page-header'
+import { StatCard } from '@/components/premium-ui/stat-card'
+import { ProgressBar } from '@/components/premium-ui/progress-bar'
 
 const STATUS_ORDER = ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'AWAITING_DOCUMENTS', 'APPROVED', 'AWAITING_PAYMENT', 'ENROLLED', 'REJECTED']
+
+const STEPS = ['Profile', 'Program', 'Documents', 'Submit', 'Decision']
 
 function statusLabel(raw) {
   return String(raw ?? 'DRAFT').replace(/_/g, ' ')
@@ -23,7 +30,7 @@ export default function ApplicantDashboardPage() {
       const meData = await me.json()
       if (!me.ok) return
       if (!canceled) setSnapshot(meData)
-      if (notifs && notifs.ok) {
+      if (notifs?.ok) {
         const n = await notifs.json()
         if (!canceled) setNotes(n)
       }
@@ -37,124 +44,152 @@ export default function ApplicantDashboardPage() {
     const status = snapshot?.application?.status ?? 'DRAFT'
     const idx = STATUS_ORDER.indexOf(status)
     const pct = idx === -1 ? 14 : Math.min(100, Math.round(((idx + 1) / STATUS_ORDER.length) * 100))
-    return { pct, status }
+    const stepIdx = Math.min(STEPS.length - 1, Math.floor((pct / 100) * STEPS.length))
+    return { pct, status, stepIdx }
   }, [snapshot])
 
   if (!snapshot) {
-    return <p className="text-sm text-slate-500">Loading your dashboard…</p>
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-200" />
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-28 animate-pulse rounded-2xl bg-slate-200/80" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   const app = snapshot.application
-  const onboardingTarget = `/applicant-portal/onboarding`
+  const onboardingTarget = '/applicant-portal/onboarding'
 
   return (
     <div className="space-y-8">
+      <PageHeader
+        title="Application dashboard"
+        description={`Signed in as ${snapshot.user?.email ?? 'applicant'} · ${statusLabel(progress.status)}`}
+        actions={
+          <Link
+            href="/applicant-portal/application"
+            className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+          >
+            Continue application
+          </Link>
+        }
+      />
+
       {app?.status === 'ENROLLED' && !app.onboardingSeenAt ? (
-        <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50 px-5 py-4 dark:border-emerald-500/30 dark:bg-emerald-950/40">
-          <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-            You are enrolled · complete onboarding cues for registrar hand-off.
-          </p>
-          <Link href={onboardingTarget} prefetch={false} className="mt-2 inline-flex text-sm font-semibold text-primary underline-offset-4 hover:underline dark:text-secondary">
+        <div className="rounded-2xl border border-secondary bg-secondary/15 px-5 py-4">
+          <p className="text-sm font-medium text-primary">You are enrolled — complete onboarding for registrar hand-off.</p>
+          <Link href={onboardingTarget} className="mt-2 inline-flex text-sm font-semibold text-primary hover:underline">
             Open onboarding →
           </Link>
         </div>
       ) : null}
 
-      {/* Summary */}
-      <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Signed in</p>
-            <p className="mt-1 truncate text-lg font-semibold text-slate-900 dark:text-white">{snapshot.user?.email ?? '—'}</p>
-            <p className="mt-3 max-w-xl text-sm text-slate-600 dark:text-slate-400">
-              {snapshot.user?.emailVerified
-                ? 'Email verified — desk updates and receipts use this inbox.'
-                : 'Verify email for OTP fallbacks · request code from Admissions when wiring is enabled.'}{' '}
-              <button
-                type="button"
-                className="font-semibold text-primary underline-offset-4 hover:underline dark:text-secondary"
-                onClick={async () => {
-                  await fetch('/api/admissions/request-verify', { method: 'POST' })
-                  alert(process.env.NODE_ENV === 'production' ? 'Verification queued.' : 'Dev: OTP behaviour see server logs.')
-                }}
-              >
-                Send verification request
-              </button>
-            </p>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">Admission progress</p>
+            <p className="mt-1 text-lg font-semibold text-slate-900">{app?.program?.name ?? 'Complete your programme selection'}</p>
+            <p className="text-sm text-slate-500">{app?.intake?.label ?? 'Intake pending'}</p>
           </div>
-          <span className="shrink-0 rounded-full bg-slate-100 px-4 py-1.5 text-xs font-semibold text-slate-800 dark:bg-white/10 dark:text-slate-100">
-            {statusLabel(progress.status)}
+          <span className="rounded-full bg-secondary/20 px-4 py-1.5 text-xs font-semibold text-primary ring-1 ring-secondary/40">
+            {progress.pct}% complete
           </span>
         </div>
-
-        <div className="mt-6">
-          <div className="mb-2 flex items-center justify-between text-xs font-medium text-slate-500">
-            <span>Admission progress</span>
-            <span className="text-slate-800 dark:text-slate-200">{progress.pct}%</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-            <div
-              aria-hidden
-              className="h-full rounded-full bg-slate-900 transition-[width] duration-500 dark:bg-secondary"
-              style={{ width: `${progress.pct}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Missing items: {(snapshot.missingDocs ?? []).length ? snapshot.missingDocs.join(', ') : 'None flagged'}
-          </p>
+        <ProgressBar value={progress.pct} className="mt-6" />
+        <div className="mt-6 flex flex-wrap justify-between gap-3">
+          {STEPS.map((label, i) => (
+            <div key={label} className="flex flex-col items-center gap-2 text-center">
+              <div
+                className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold ${
+                  i <= progress.stepIdx ? 'bg-primary text-white' : 'bg-slate-200 text-slate-600'
+                }`}
+              >
+                {i + 1}
+              </div>
+              <span className="text-[11px] font-medium text-slate-600">{label}</span>
+            </div>
+          ))}
         </div>
+        <p className="mt-4 text-xs text-slate-500">
+          Missing documents: {(snapshot.missingDocs ?? []).length ? snapshot.missingDocs.join(', ') : 'None flagged'}
+        </p>
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <article className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Programme</p>
-          <p className="mt-2 text-base font-semibold text-slate-900 dark:text-white">{app?.program?.name ?? 'Complete wizard'}</p>
-          <p className="text-xs text-slate-500">{app?.intake?.label ?? 'Intake pending'}</p>
-          <Link href="/applicant-portal/application" prefetch={false} className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline dark:text-secondary">
-            Continue application →
-          </Link>
-        </article>
+        <StatCard
+          label="Programme"
+          value={app?.program?.code ?? '—'}
+          hint={app?.program?.name ?? 'Open wizard to select'}
+          icon={GraduationCap}
+        />
+        <StatCard label="Notifications" value={String(notes?.unreadCount ?? 0)} hint="Unread updates" icon={Bell} />
+        <StatCard
+          label="Documents"
+          value={String((app?.documents ?? []).length)}
+          hint="Uploaded to dossier"
+          icon={Upload}
+        />
+      </div>
 
-        <article className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Desk</p>
-          <div className="mt-2 max-h-[128px] space-y-2 overflow-y-auto text-sm text-slate-700 dark:text-slate-300">
-            {(snapshot.application?.comments ?? []).slice(0, 4).map((c) => (
-              <p key={c.id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs dark:border-white/10 dark:bg-slate-800/70">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <article className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Desk messages</p>
+          <div className="mt-3 max-h-40 space-y-2 overflow-y-auto">
+            {(app?.comments ?? []).slice(0, 5).map((c) => (
+              <p key={c.id} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-700">
                 {c.body}
               </p>
             ))}
-            {(snapshot.application?.comments ?? []).length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No officer notes yet.</p>
+            {(app?.comments ?? []).length === 0 ? (
+              <p className="text-sm text-slate-500">No officer notes yet.</p>
             ) : null}
           </div>
+          <Link href="/applicant-portal/notifications" className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline">
+            All notifications →
+          </Link>
         </article>
 
-        <article className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:col-span-2 lg:col-span-1 dark:border-white/10 dark:bg-slate-900">
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Notifications</p>
-            <Link href="/applicant-portal/notifications" prefetch={false} className="text-sm font-semibold text-primary hover:underline dark:text-secondary">
-              Open
-            </Link>
-          </div>
-          <p className="mt-4 text-3xl font-bold tabular-nums text-slate-900 dark:text-white">{notes?.unreadCount ?? 0}</p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Unread in-app updates</p>
+        <article className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Recent activity</p>
+          <ul className="mt-3 space-y-2">
+            {(app?.timeline ?? [])
+              .slice(-6)
+              .reverse()
+              .map((t) => (
+                <li key={t.id} className="flex gap-2 text-xs">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" />
+                  <div>
+                    <time className="font-medium text-slate-500">{new Date(t.createdAt).toLocaleString()}</time>
+                    <p className="text-slate-800">{t.eventType}</p>
+                  </div>
+                </li>
+              ))}
+            {(app?.timeline ?? []).length === 0 ? <li className="text-xs text-slate-500">No events yet.</li> : null}
+          </ul>
         </article>
       </div>
 
-      <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Recent activity</p>
-        <ul className="mt-4 space-y-2">
-          {(snapshot.application?.timeline ?? [])
-            .slice(-6)
-            .reverse()
-            .map((t) => (
-              <li key={t.id} className="flex flex-wrap gap-x-2 text-xs text-slate-600 dark:text-slate-400">
-                <time className="font-medium text-slate-500 dark:text-slate-500">{new Date(t.createdAt).toLocaleString()}</time>
-                <span className="text-slate-800 dark:text-slate-200">{t.eventType}</span>
-              </li>
-            ))}
-          {(snapshot.application?.timeline ?? []).length === 0 ? <li className="text-xs text-slate-500">No timeline events yet.</li> : null}
-        </ul>
+      <section className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <FileText className="h-5 w-5 text-primary" />
+          <p className="text-sm text-slate-600">
+            Need to verify email?{' '}
+            <button
+              type="button"
+              className="font-semibold text-primary hover:underline"
+              onClick={async () => {
+                await fetch('/api/admissions/request-verify', { method: 'POST' })
+                alert(process.env.NODE_ENV === 'production' ? 'Verification queued.' : 'Dev: check server logs for OTP.')
+              }}
+            >
+              Send verification request
+            </button>
+          </p>
+        </div>
       </section>
     </div>
   )

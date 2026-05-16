@@ -8,9 +8,9 @@ export default function MoodleHubCallout({
   const url = typeof process.env.NEXT_PUBLIC_MOODLE_URL === 'string' ? process.env.NEXT_PUBLIC_MOODLE_URL.trim() : ''
 
   return (
-    <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-emerald-900">{headline}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-emerald-900/80">{body}</p>
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-bold text-primary">{headline}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p>
 
       <div className="mt-5 flex flex-wrap gap-3">
         {url ? (
@@ -18,12 +18,12 @@ export default function MoodleHubCallout({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700"
+            className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white hover:opacity-90"
           >
             Open Moodle LMS
           </a>
         ) : (
-          <p className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+          <p className="rounded-xl border border-secondary/50 bg-secondary/10 px-3 py-2 text-xs font-semibold text-primary">
             Set <code className="font-mono">NEXT_PUBLIC_MOODLE_URL</code> in <code className="font-mono">.env</code> to enable the button for your tenant.
           </p>
         )}

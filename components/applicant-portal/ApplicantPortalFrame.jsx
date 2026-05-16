@@ -14,7 +14,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 
-import PortalDeskShell from '@/components/portals/PortalDeskShell'
+import PortalDeskShell, { deskNavLinkClass } from '@/components/portals/PortalDeskShell'
 import LogoutButton from '@/components/LogoutButton'
 
 const NAV = [
@@ -51,8 +51,9 @@ export default function ApplicantPortalFrame({ children }) {
   return (
     <PortalDeskShell
       badgeTitle="Applicant desk"
-      badgeSubtitle="Magwi · admissions"
+      badgeSubtitle="Magwi University of Technology"
       headerTitle={title}
+      headerDescription="Track your admission journey"
       sidebar={(closeMobile) =>
         NAV.map(({ href, label, Icon }) => {
           const active = pathname ? navActive(pathname, href) : false
@@ -62,14 +63,9 @@ export default function ApplicantPortalFrame({ children }) {
               href={href}
               prefetch={false}
               onClick={closeMobile}
-              className={[
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors',
-                active
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-slate-100',
-              ].join(' ')}
+              className={deskNavLinkClass(active)}
             >
-              <Icon className="h-[18px] w-[18px] shrink-0 opacity-90" strokeWidth={1.75} />
+              <Icon className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.75} />
               {label}
             </Link>
           )
@@ -77,10 +73,10 @@ export default function ApplicantPortalFrame({ children }) {
       }
       footer={
         <>
-          <LogoutButton className="w-full rounded-xl border border-slate-200 bg-white py-2.5 text-[13px] font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60" />
+          <LogoutButton className="w-full rounded-lg border border-slate-200 bg-white py-2 text-[12px] font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60" />
           <Link
             href="/"
-            className="flex w-full items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold text-slate-500 hover:text-primary"
+            className="flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-semibold text-slate-500 hover:text-primary"
           >
             Public site <ArrowUpRight className="h-3.5 w-3.5" aria-hidden strokeWidth={2} />
           </Link>

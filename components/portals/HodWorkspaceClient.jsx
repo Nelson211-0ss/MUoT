@@ -144,7 +144,7 @@ export default function HodWorkspaceClient({ programs }) {
         </p>
       ) : null}
 
-      <section className="rounded-2xl border border-gray-100 p-6 space-y-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4 shadow-sm">
         <h2 className="text-lg font-bold text-primary">Programme course units</h2>
         <p className="text-sm text-gray-600">Units configured here unlock mark entry below for learners registered on that degree.</p>
 
@@ -225,7 +225,7 @@ export default function HodWorkspaceClient({ programs }) {
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-gray-100 p-6 space-y-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4 shadow-sm">
         <h2 className="text-lg font-bold text-primary">Semester marks</h2>
         <p className="text-sm text-gray-600">Enter percentage scores once the learner sits the unit.</p>
 

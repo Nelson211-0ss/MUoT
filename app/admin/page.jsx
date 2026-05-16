@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSessionFromCookies } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import AdminDashboard from '@/components/AdminDashboard'
-import LogoutButton from '@/components/LogoutButton'
+import AdmissionsDeskPage from '@/components/admin/AdmissionsDeskPage'
 import { ensureLegacyUserRoles, getUserPermissionKeys } from '@/lib/rbac/access'
 import { P, isManagementRoleSlug } from '@/lib/rbac/constants'
 
@@ -61,28 +61,26 @@ export default async function AdminPage() {
   }
 
   const roleLabel = ROLE_DISPLAY[viewer.role] ?? viewer.role
+  const admissionsDeskOnly = viewer.role === 'ACADEMIC_REGISTRAR' || viewer.role === 'ADMISSIONS_OFFICER'
+
+  if (admissionsDeskOnly) {
+    return (
+      <AdmissionsDeskPage
+        viewer={viewer}
+        users={users}
+        permissionKeys={permissionKeys}
+        roleLabel={roleLabel}
+      />
+    )
+  }
 
   return (
-    <div data-portal-scope="light" className="min-h-dvh flex flex-col bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-40 flex flex-wrap items-center gap-3 border-b border-slate-200/80 bg-white/95 px-4 py-3 backdrop-blur-md sm:gap-6 lg:px-8">
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-primary">Management desk</p>
-          <p className="truncate text-[13px] text-slate-700">
-            {viewer.name}{' '}
-            <span className="font-normal text-slate-500">
-              · {roleLabel}
-            </span>
-          </p>
-        </div>
-        <span className="hidden max-w-[min(24rem,_40vw)] truncate font-mono text-[11px] text-slate-500 xl:inline">{viewer.email}</span>
-        <LogoutButton />
-      </header>
-
-      <div className="flex flex-1 flex-col px-4 py-6 lg:px-8 lg:pb-10">
-        <div className="mx-auto w-full max-w-[90rem]">
-          <AdminDashboard viewer={viewer} users={users} permissionKeys={permissionKeys} viewerRole={viewer.role} />
-        </div>
-      </div>
-    </div>
+    <AdminDashboard
+      viewer={viewer}
+      users={users}
+      permissionKeys={permissionKeys}
+      viewerRole={viewer.role}
+      roleLabel={roleLabel}
+    />
   )
 }

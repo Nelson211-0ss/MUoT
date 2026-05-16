@@ -7,8 +7,6 @@ import {
   LayoutDashboard,
   UsersRound,
   IdCard,
-  PanelLeftClose,
-  PanelLeft,
   GraduationCap,
   School,
   CreditCard,
@@ -23,10 +21,16 @@ import {
   Bell,
   Shield,
   ScrollText,
+  ArrowUpRight,
+  BookOpen,
 } from 'lucide-react'
 
 import EcosystemPlaceholder from '@/components/portals/EcosystemPlaceholder'
 import AdmissionManagementWorkspace from '@/components/admissions/AdmissionManagementWorkspace'
+import PortalDeskShell, { deskNavLinkClass } from '@/components/portals/PortalDeskShell'
+import LogoutButton from '@/components/LogoutButton'
+import { PageHeader } from '@/components/premium-ui/page-header'
+import { StatCard } from '@/components/premium-ui/stat-card'
 import { MANAGEMENT_ROLE_SLUGS, P, normalizeRoleSlug } from '@/lib/rbac/constants'
 
 const SECTION_DEFS = [
@@ -139,11 +143,11 @@ export default function AdminDashboard({
   users,
   permissionKeys = [],
   viewerRole = 'ADMIN',
+  roleLabel = 'Management',
 }) {
   const router = useRouter()
   const [msg, setMsg] = useState(null)
   const [section, setSection] = useState('overview')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [auditLogs, setAuditLogs] = useState([])
   const [auditLoading, setAuditLoading] = useState(false)
 
@@ -207,75 +211,46 @@ export default function AdminDashboard({
 
 
 
+  const activeSection = sections.find((s) => s.id === section) ?? sections[0]
+
   return (
-    <div className="flex min-h-[min(72vh,calc(100dvh-5.5rem))] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm lg:flex-row">
-      <div className="border-b border-slate-200 bg-white p-3 lg:hidden">
-        <label className="sr-only" htmlFor="admin-section-mobile">
-          Management section
-        </label>
-        <select
-          id="admin-section-mobile"
-          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800"
-          value={sections.some((s) => s.id === section) ? section : sections[0]?.id}
-          onChange={(e) => setSection(e.target.value)}
-        >
-          {sections.map((s) => (
-            <option key={s.id} value={s.id}>
+    <PortalDeskShell
+      badgeTitle="Management desk"
+      badgeSubtitle="Magwi University of Technology"
+      headerTitle={activeSection?.label ?? 'Dashboard'}
+      headerDescription={`${viewer?.name ?? ''} · ${roleLabel}`}
+      mainInnerClassName="mx-auto w-full max-w-5xl lg:max-w-6xl"
+      showSearch={false}
+      sidebar={() =>
+        sections.map((s) => {
+          const Icon = s.icon
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setSection(s.id)}
+              className={deskNavLinkClass(section === s.id)}
+            >
+              <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
               {s.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <aside
-        className={`${
-          sidebarOpen ? 'lg:w-60 xl:w-64' : 'lg:w-[4.25rem]'
-        } hidden shrink-0 flex-col border-slate-200 bg-white transition-[width] duration-200 ease-out lg:flex lg:border-r`}
-      >
-        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-3">
-          {sidebarOpen ? (
-            <p className="pl-1 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500">Sections</p>
-          ) : (
-            <span className="sr-only">Management menu</span>
-          )}
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((o) => !o)}
-            className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100"
-            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            </button>
+          )
+        })
+      }
+      footer={
+        <>
+          <LogoutButton className="w-full rounded-lg border border-slate-200 bg-white py-2 text-[12px] font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60" />
+          <Link
+            href="/"
+            className="flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-semibold text-slate-500 hover:text-primary"
           >
-            {sidebarOpen ? (
-              <PanelLeftClose className="w-5 h-5" strokeWidth={1.75} />
-            ) : (
-              <PanelLeft className="w-5 h-5" strokeWidth={1.75} />
-            )}
-          </button>
-        </div>
+            Public site <ArrowUpRight className="h-3.5 w-3.5" aria-hidden strokeWidth={2} />
+          </Link>
+        </>
+      }
+    >
+      <div className="space-y-8">
 
-        <nav className="flex max-h-[min(70vh,44rem)] flex-1 flex-col gap-1 overflow-y-auto p-2">
-          {sections.map((s) => {
-            const Icon = s.icon
-            const active = section === s.id
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setSection(s.id)}
-                title={!sidebarOpen ? s.label : undefined}
-                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
-                  active ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} aria-hidden />
-                {sidebarOpen ? <span className="truncate">{s.label}</span> : null}
-              </button>
-            )
-          })}
-        </nav>
-      </aside>
-
-      <div className="min-w-0 flex-1 bg-slate-50/90">
-        <div className="p-5 sm:p-8 max-w-4xl mx-auto space-y-8">
           <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center gap-3 text-xs text-gray-700">
             <Shield className="w-4 h-4 text-primary shrink-0" strokeWidth={1.75} />
             <span>
@@ -298,38 +273,18 @@ export default function AdminDashboard({
 
           {section === 'overview' && (
             <div className="space-y-6">
-              <div>
-                <h2 className="font-bold text-primary text-xl">Institutional pulse</h2>
-                <p className="text-sm text-gray-600 mt-1 max-w-2xl">
-                  Permission-aware management console aligned with Magwi’s RBAC lattice. Rows below reflect only data
-                  scopes you inherit from role assignments.
-                </p>
+              <PageHeader
+                title="Institutional pulse"
+                description="Permission-aware console — metrics reflect only data scopes from your role assignments."
+              />
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <StatCard label="Users total" value={String(users.length)} icon={UsersRound} />
+                <StatCard label="Students" value={String(students.length)} icon={School} />
+                <StatCard label="Lecturers" value={String(lecturers.length)} icon={GraduationCap} />
+                <StatCard label="Moodle LMS" value="External" hint="Set NEXT_PUBLIC_MOODLE_URL" icon={BookOpen} />
               </div>
-              <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Users total</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{users.length}</p>
-                </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Students</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{students.length}</p>
-                </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Lecturers</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{lecturers.length}</p>
-                </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Moodle LMS</p>
-                  <p className="text-sm font-semibold text-primary mt-2 leading-snug">
-                    Curriculum delivery
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">Configure campus link via NEXT_PUBLIC_MOODLE_URL · no local mirror.</p>
-                </div>
-              </div>
-              <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm flex flex-wrap gap-6 text-sm text-gray-600">
-                <div>
-                  <span className="font-semibold text-gray-800">Elevated roles on campus:</span> {staffCount}
-                </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
+                <span className="font-semibold text-slate-800">Elevated roles on campus:</span> {staffCount}
               </div>
             </div>
           )}
@@ -593,8 +548,7 @@ export default function AdminDashboard({
               description="SMTP/SMS, SSO federation, MFA posture, integrations—blocked behind system.settings.manage scopes."
             />
           )}
-        </div>
       </div>
-    </div>
+    </PortalDeskShell>
   )
 }

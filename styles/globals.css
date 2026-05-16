@@ -23,3 +23,16 @@ body {
   background: #ffffff;
   color: #111827;
 }
+
+/* Desk shells lock the viewport; only main content scrolls. */
+html:has([data-portal-scope='light']),
+body:has([data-portal-scope='light']) {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Portal desks: navy primary + gold secondary (plain fills, no gradients). */
+[data-portal-scope='light'] {
+  --desk-bg: #f8fafc;
+  --desk-surface: #ffffff;
+}

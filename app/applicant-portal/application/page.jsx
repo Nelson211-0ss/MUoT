@@ -47,14 +47,14 @@ export default function ApplicantApplicationPage() {
 
   if (error) {
     return (
-      <p className="text-sm text-red-600 dark:text-red-300">
+      <p className="text-sm text-red-600">
         Unable to reach applicant services: <span className="font-semibold">{error}</span>
       </p>
     )
   }
 
   if (!snapshot || catalog === null) {
-    return <p className="text-sm text-gray-600 dark:text-slate-400">Loading your dossier…</p>
+    return <p className="text-sm text-gray-600">Loading your dossier…</p>
   }
 
   return <AdmissionApplicationWizard catalog={catalog} snapshot={snapshot} />

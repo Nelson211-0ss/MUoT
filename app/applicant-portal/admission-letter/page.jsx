@@ -19,11 +19,11 @@ export default function AdmissionLetterPreview() {
       {!app ? (
         <p className="text-sm text-slate-500">Loading…</p>
       ) : !allowed ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-600">
           Available after provisional decision. Current status:&nbsp;<strong>{app.status}</strong>
         </p>
       ) : (
-        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-8 text-primary shadow-sm print:border-0 print:shadow-none dark:border-white/10 dark:bg-white dark:text-primary">
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-8 text-primary shadow-sm print:border-0 print:shadow-none">
           <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Magwi University of Technology</p>
@@ -51,7 +51,7 @@ export default function AdmissionLetterPreview() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white print:hidden dark:bg-secondary dark:text-primary"
+            className="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white print:hidden"
           >
             Print / Save PDF
           </button>
