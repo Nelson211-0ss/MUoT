@@ -1,11 +1,10 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import PageLayout from '@/components/PageLayout'
-import SectionHeader from '@/components/SectionHeader'
 import { getSessionFromCookies } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getPortalDashboard } from '@/lib/portal'
-import StudentPortalDashboard from '@/components/StudentPortalDashboard'
-import LogoutButton from '@/components/LogoutButton'
+import StudentPortalShell from '@/components/portals/StudentPortalShell'
 
 export default async function StudentPortalPage() {
   const session = await getSessionFromCookies()
@@ -46,16 +45,9 @@ export default async function StudentPortalPage() {
       showCta={false}
       showFooter={false}
     >
-      <div className="flex justify-end mb-6">
-        <LogoutButton />
-      </div>
-      <SectionHeader
-        title="Dashboard"
-        subtitle={`Welcome back, ${data.user.name}.`}
-        align="left"
-      />
-
-      <StudentPortalDashboard data={data} />
+      <Suspense fallback={<p className="text-sm text-gray-500 px-1">Loading your workspace…</p>}>
+        <StudentPortalShell data={data} />
+      </Suspense>
     </PageLayout>
   )
 }

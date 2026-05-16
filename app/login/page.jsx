@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar'
 import PageBanner from '@/components/PageBanner'
 import Footer from '@/components/Footer'
 import LoginForm from '@/components/LoginForm'
+import { AnimateRouteShell } from '@/components/PageMotion'
 
 function FormFallback() {
   return (
@@ -14,17 +15,19 @@ function FormFallback() {
 
 export default function LoginPage() {
   return (
-    <main className="bg-white min-h-screen">
+    <main className="bg-white min-h-screen flex flex-col">
       <Navbar />
-      <PageBanner title="Student Login" subtitle="Access your courses, assignments, and academic records." />
+      <AnimateRouteShell className="flex flex-col flex-1 min-h-0 w-full">
+        <PageBanner title="Student Login" subtitle="Access your courses, assignments, and academic records." />
 
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 flex justify-center">
-        <Suspense fallback={<FormFallback />}>
-          <LoginForm />
-        </Suspense>
-      </section>
+        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 flex justify-center flex-1">
+          <Suspense fallback={<FormFallback />}>
+            <LoginForm />
+          </Suspense>
+        </section>
 
-      <Footer />
+        <Footer />
+      </AnimateRouteShell>
     </main>
   )
 }

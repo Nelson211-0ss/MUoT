@@ -9,13 +9,28 @@ import {
   IdCard,
   PanelLeftClose,
   PanelLeft,
+  GraduationCap,
+  CreditCard,
+  Building2,
+  PieChart,
+  Globe,
+  SlidersHorizontal,
 } from 'lucide-react'
 
+import Link from 'next/link'
+import EcosystemPlaceholder from '@/components/portals/EcosystemPlaceholder'
+
 const SECTIONS = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'people', label: 'People & courses', icon: UsersRound },
+  { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'people', label: 'Students & lecturers', icon: UsersRound },
   { id: 'enrollments', label: 'Enrollments', icon: ClipboardList },
-  { id: 'directory', label: 'Account directory', icon: IdCard },
+  { id: 'directory', label: 'Directory', icon: IdCard },
+  { id: 'admissions', label: 'Admissions', icon: GraduationCap },
+  { id: 'finance', label: 'Finance', icon: CreditCard },
+  { id: 'departments', label: 'Departments', icon: Building2 },
+  { id: 'reports', label: 'Reports', icon: PieChart },
+  { id: 'cms', label: 'Website CMS', icon: Globe },
+  { id: 'settings', label: 'Settings', icon: SlidersHorizontal },
 ]
 
 export default function AdminDashboard({ users, courses, enrollments = [] }) {
@@ -414,6 +429,53 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
                 </div>
               </section>
             </div>
+          )}
+
+          {section === 'admissions' && (
+            <div className="space-y-6">
+              <EcosystemPlaceholder
+                title="Admissions orchestration"
+                description="Interview scheduling, document intake, evaluator notes, conditional offers, and automated acknowledgement packs—wired to SSO with tamper-evident logs."
+              />
+              <Link href="/admissions" className="inline-flex text-sm font-bold text-blue-700 hover:underline">
+                Open public admissions funnel →
+              </Link>
+            </div>
+          )}
+
+          {section === 'finance' && (
+            <EcosystemPlaceholder
+              title="Finance & cashiering"
+              description="Stripe, Flutterwave, PayPal plus MTN and Airtel Money share one treasury ledger—payments unlock LMS access instantly after reconciliation."
+            />
+          )}
+
+          {section === 'departments' && (
+            <EcosystemPlaceholder
+              title="Departments"
+              description="Workload planning, adjunct onboarding, departmental QA, budgeting, and delegated approvals—all synchronized with course graphs."
+            />
+          )}
+
+          {section === 'reports' && (
+            <EcosystemPlaceholder
+              title="Reports"
+              description="Council-ready attainment packs, finance burn charts, enrolment pacing, cohort risk modelling, and engagement analytics."
+            />
+          )}
+
+          {section === 'cms' && (
+            <EcosystemPlaceholder
+              title="Website CMS"
+              description="Headless editorial tooling for News, QA microsites, and campaign launches—released through previews that obey the Magwi design system tokens."
+            />
+          )}
+
+          {section === 'settings' && (
+            <EcosystemPlaceholder
+              title="Institutional settings"
+              description="SMTP/SMS gateways, SSO federation metadata, MFA policy, webhook secrets, and audit streaming—backing the hardened JWT + cookie perimeter you use today."
+            />
           )}
         </div>
       </div>

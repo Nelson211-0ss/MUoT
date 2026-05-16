@@ -11,6 +11,8 @@ export default function LoginForm() {
   const [status, setStatus] = useState(null)
   const [pending, setPending] = useState(false)
 
+  const intent = (searchParams.get('intent') ?? '').trim().toLowerCase()
+
   async function handleSubmit(e) {
     e.preventDefault()
     setStatus(null)
@@ -108,9 +110,18 @@ export default function LoginForm() {
         </button>
       </div>
 
-      <h2 className="text-xl font-bold text-primary mb-6 text-center">
+      <h2 className="text-xl font-bold text-primary mb-2 text-center">
         {mode === 'login' ? 'Sign in to your account' : 'Create your student account'}
       </h2>
+
+      {mode === 'login' && intent && (
+        <p className="text-xs text-center text-gray-500 mb-6 leading-relaxed px-2">
+          {intent === 'lecturer' && 'Faculty workspaces use the staff directory issued by ICT / HR.'}
+          {intent === 'admin' &&
+            'System administrators sign in here to provision lecturers, curricula, admissions, finance, CMS, analytics, and LMS guardrails.'}
+          {intent === 'student' && 'Students enroll through Admissions/Registrar and then unlock materials, uploads, GPA widgets, notices, billing, messaging, and LMS sessions from one SSO.'}
+        </p>
+      )}
 
       {status && (
         <p

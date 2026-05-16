@@ -58,11 +58,19 @@ npm run dev
 
 Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-### Demo login (after seed)
+### Demo logins (after seed)
 
-- **Email:** `demo@mut.edu`  
-- **Password:** `demo123`  
-- **Student portal:** [http://localhost:3000/student-portal](http://localhost:3000/student-portal) (requires login)
+Demo users are created by `node prisma/seed.js` (or `npm run db:seed`). **These are for local development only.**
+
+| Role | Email | Password |
+|------|--------|----------|
+| Student | `demo@mut.edu` | `demo123` |
+| Lecturer | `lecturer@mut.edu` | `lecturer123` |
+| Admin | `admin@mut.edu` | `admin123` |
+
+- **Student portal:** [http://localhost:3000/student-portal](http://localhost:3000/student-portal)
+- **Lecturer portal:** [http://localhost:3000/lecturer-portal](http://localhost:3000/lecturer-portal)
+- **Admin:** [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ## Production build
 

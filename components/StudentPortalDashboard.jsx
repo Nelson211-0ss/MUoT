@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { BookOpen, ClipboardList, BarChart3, FileDown, Megaphone } from 'lucide-react'
 import StudentAssignmentActions from '@/components/StudentAssignmentActions'
-import PortalPasswordSection from '@/components/PortalPasswordSection'
 
 function formatDate(iso) {
   try {
@@ -145,8 +144,6 @@ export default function StudentPortalDashboard({ data }) {
           ))}
         </div>
       )}
-
-      <PortalPasswordSection />
 
       <p className="text-sm text-gray-500">
         Need help?{' '}

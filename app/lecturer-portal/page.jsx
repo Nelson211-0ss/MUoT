@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation'
 import PageLayout from '@/components/PageLayout'
-import SectionHeader from '@/components/SectionHeader'
 import { getSessionFromCookies } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import LecturerPortalWorkspace from '@/components/LecturerPortalWorkspace'
-import LogoutButton from '@/components/LogoutButton'
+import { Suspense } from 'react'
+import LecturerPortalShell from '@/components/portals/LecturerPortalShell'
 
 export default async function LecturerPortalPage() {
   const session = await getSessionFromCookies()
@@ -17,9 +16,14 @@ export default async function LecturerPortalPage() {
     select: { id: true, name: true, email: true, role: true },
   })
 
-  if (!user || user.role !== 'LECTURER') {
+  if (!user) {
+    redirect('/login?next=/lecturer-portal')
+  }
+
+  const lecturerRole = (user.role ?? '').trim().toUpperCase()
+  if (lecturerRole !== 'LECTURER') {
     redirect(
-      user?.role === 'ADMIN' ? '/admin' : user?.role === 'STUDENT' ? '/student-portal' : '/login?next=/lecturer-portal',
+      lecturerRole === 'ADMIN' ? '/admin' : lecturerRole === 'STUDENT' ? '/student-portal' : '/login?next=/lecturer-portal',
     )
   }
 
@@ -102,24 +106,10 @@ export default async function LecturerPortalPage() {
   }))
 
   return (
-    <PageLayout
-      title="Lecturer portal"
-      subtitle="Manage materials, announcements, assessments, grades, and your class roster."
-      showBanner={false}
-      showCta={false}
-      showFooter={false}
-    >
-      <div className="flex justify-end mb-6">
-        <LogoutButton />
-      </div>
-
-      <SectionHeader title="Dashboard" subtitle={`Signed in as ${user.name}`} align="left" />
-
-      <p className="text-gray-600 text-sm mb-8">
-        <span className="font-semibold text-primary">{user.email}</span>
-      </p>
-
-      <LecturerPortalWorkspace courses={courses} />
+    <PageLayout title="Lecturer portal" subtitle="Teaching desk connected to admissions and LMS." showBanner={false} showCta={false} showFooter={false}>
+      <Suspense fallback={<p className="text-sm text-gray-500 px-2">Loading faculty workspace…</p>}>
+        <LecturerPortalShell courses={courses} faculty={{ name: user.name, email: user.email }} />
+      </Suspense>
     </PageLayout>
   )
 }

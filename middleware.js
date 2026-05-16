@@ -20,11 +20,24 @@ function normalizedRole(payload) {
 }
 
 export async function middleware(request) {
-  const { pathname } = request.nextUrl
+  const pathname = request.nextUrl.pathname
 
-  const isStudentArea = pathname === '/student-portal' || pathname.startsWith('/student-portal/')
-  const isLecturerArea = pathname === '/lecturer-portal' || pathname.startsWith('/lecturer-portal/')
-  const isAdminArea = pathname === '/admin' || pathname.startsWith('/admin/')
+  if (pathname === '/student') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/student-portal'
+    return NextResponse.redirect(url)
+  }
+  if (pathname === '/lecturer') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/lecturer-portal'
+    return NextResponse.redirect(url)
+  }
+
+  const { pathname: pathForMatch } = request.nextUrl
+
+  const isStudentArea = pathForMatch === '/student-portal' || pathForMatch.startsWith('/student-portal/')
+  const isLecturerArea = pathForMatch === '/lecturer-portal' || pathForMatch.startsWith('/lecturer-portal/')
+  const isAdminArea = pathForMatch === '/admin' || pathForMatch.startsWith('/admin/')
   const needsAuth = isStudentArea || isLecturerArea || isAdminArea
 
   if (!needsAuth) {
@@ -79,6 +92,8 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
+    '/student',
+    '/lecturer',
     '/student-portal',
     '/student-portal/:path*',
     '/lecturer-portal',
