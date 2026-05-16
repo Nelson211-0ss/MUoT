@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
-import { createSessionToken, hashPassword, setSessionCookie, verifyPassword } from '@/lib/auth'
+import { createSessionToken, hashPassword, setSessionCookie } from '@/lib/auth'
 
 const registerSchema = z.object({
   email: z.string().trim().email(),
@@ -24,13 +24,22 @@ export async function POST(request) {
     }
 
     const passwordHash = await hashPassword(password)
-    const user = await prisma.user.create({
-      data: {
-        email: email.toLowerCase(),
-        name,
-        passwordHash,
-        role: 'STUDENT',
-      },
+    const studentRole = await prisma.role.findUnique({ where: { slug: 'STUDENT' } })
+    if (!studentRole) {
+      return NextResponse.json({ error: 'Registration unavailable — RBAC not initialised' }, { status: 503 })
+    }
+
+    const user = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.create({
+        data: {
+          email: email.toLowerCase(),
+          name,
+          passwordHash,
+          role: 'STUDENT',
+        },
+      })
+      await tx.userRole.create({ data: { userId: u.id, roleId: studentRole.id } })
+      return u
     })
 
     const token = await createSessionToken({

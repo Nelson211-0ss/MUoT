@@ -12,15 +12,244 @@ model User {
   email        String   @unique
   passwordHash String
   name         String
+  /// Primary routing role (JWT + middleware). Mirrors highest-privilege RBAC Role.slug.
   role         String   @default("STUDENT")
+  /// When set, applicant has confirmed email for admissions flows.
+  emailVerifiedAt DateTime?
+  /// Canonical 10-digit login id issued at enrollment (also used as the initial plaintext password once).
+  studentLoginNumber           String?  @unique
+  /// Until false, student must visit /student-portal/setup-password after authenticating with the provisional password.
+  studentPasswordConfigured Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  enrollments         Enrollment[]
-  assignmentProgress  AssignmentProgress[]
-  taughtCourses       Course[]           @relation("CourseLecturer")
-  uploadedMaterials   CourseMaterial[]
-  announcements       Announcement[]
+  userRoles           UserRole[]
+  auditLogs           AuditLog[]         @relation("AuditActor")
+  admissionApplications AdmissionApplication[] @relation("ApplicantAdmissionApplications")
+
+  degreeEnrollment        StudentDegreeEnrollment?
+  tuitionAssessments      TuitionAssessment[]
+  unitResults             StudentUnitResult[] @relation("StudentUnitResults")
+  unitResultsEnteredAsHod StudentUnitResult[] @relation("UnitResultsEnteredByHod")
+}
+
+model VerificationToken {
+  id         String    @id @default(cuid())
+  email      String
+  purpose    String
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email, purpose])
+}
+
+model AdmissionFaculty {
+  id           String                   @id @default(cuid())
+  code         String                   @unique
+  name         String
+  programs     AdmissionProgram[]
+  applications AdmissionApplication[]
+  createdAt    DateTime                 @default(now())
+}
+
+model AdmissionProgram {
+  id           String                   @id @default(cuid())
+  facultyId    String
+  code         String
+  slug         String                   @unique
+  name         String
+  faculty      AdmissionFaculty         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  applications AdmissionApplication[]
+  courseUnits  ProgramCourseUnit[]
+  enrollments  StudentDegreeEnrollment[]
+
+  @@unique([facultyId, code])
+}
+
+model AdmissionIntake {
+  id           String                   @id @default(cuid())
+  label        String
+  year         Int
+  isOpen       Boolean                  @default(true)
+  opensAt      DateTime?
+  closesAt     DateTime?
+  applications AdmissionApplication[]
+  createdAt    DateTime                 @default(now())
+}
+
+model AdmissionApplication {
+  id               String           @id @default(cuid())
+  applicantUserId  String
+  applicant        User             @relation("ApplicantAdmissionApplications", fields: [applicantUserId], references: [id], onDelete: Cascade)
+
+  status           String           @default("DRAFT")
+
+  fullName         String?
+  gender           String?
+  dateOfBirth      DateTime?
+  nationality      String?
+  address          String?
+  phone            String?
+  passportPhotoPath String?
+
+  previousSchool           String?
+  academicQualifications   String?
+  nationalExamResults      String?
+  graduationYear           Int?
+
+  admissionFacultyId String?
+  admissionFaculty AdmissionFaculty? @relation(fields: [admissionFacultyId], references: [id], onDelete: SetNull)
+  programId          String?
+  admissionProgram   AdmissionProgram? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  intakeId           String?
+  admissionIntake    AdmissionIntake? @relation(fields: [intakeId], references: [id], onDelete: SetNull)
+  studyMode          String?
+
+  submittedAt DateTime?
+  decisionAt DateTime?
+  registrarFinalizedAt DateTime?
+  studentNumber String?
+
+  onboardingSeenAt DateTime?
+
+  documents   AdmissionDocument[]
+  comments    AdmissionComment[]
+  timeline    AdmissionTimelineEvent[]
+  payments    AdmissionFeePayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([applicantUserId])
+  @@index([status])
+}
+
+model AdmissionDocument {
+  id            String               @id @default(cuid())
+  applicationId String
+  docType       String
+  title         String
+  fileName      String
+  storedPath    String
+  mimeType      String?
+  sizeBytes     Int
+  verifiedAt    DateTime?
+  verifiedById  String?
+  rejectReason  String?
+  createdAt     DateTime             @default(now())
+  application   AdmissionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model AdmissionComment {
+  id            String               @id @default(cuid())
+  applicationId String
+  authorId      String?
+  visibility    String               @default("APPLICANT")
+  body          String
+  createdAt     DateTime             @default(now())
+  application   AdmissionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model AdmissionTimelineEvent {
+  id            String               @id @default(cuid())
+  applicationId String
+  eventType     String
+  payload       String?
+  actorUserId   String?
+  createdAt     DateTime             @default(now())
+  application   AdmissionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model AdmissionFeePayment {
+  id             String               @id @default(cuid())
+  applicationId  String
+  label          String
+  amountMinor    Int
+  currency       String               @default("SSP")
+  status         String               @default("PENDING")
+  gateway        String               @default("SIMULATED")
+  gatewayRef     String?
+  meta           String?
+  verifiedAt     DateTime?
+  verifiedById   String?
+  createdAt      DateTime             @default(now())
+  application    AdmissionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model AdmissionInAppNotification {
+  id           String    @id @default(cuid())
+  userId       String
+  title        String
+  body         String
+  readAt       DateTime?
+  meta         String?
+  createdAt    DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  /// Higher beats lower when deriving a user's primary JWT role from many UserRole rows.
+  level       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users           UserRole[]
+  rolePermissions RolePermission[]
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  meta      String?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User?    @relation("AuditActor", fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model Application {
@@ -41,77 +270,62 @@ model ContactMessage {
   createdAt DateTime @default(now())
 }
 
-model Course {
-  id          String           @id @default(cuid())
-  code        String
-  title       String
-  lecturerId  String?
-  lecturer    User?            @relation("CourseLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
-  enrollments Enrollment[]
-  assignments Assignment[]
-  materials   CourseMaterial[]
-  announcements Announcement[]
+/// Modules / course units configured by HOD against an admitted academic program (before grades can exist).
+model ProgramCourseUnit {
+  id                 String           @id @default(cuid())
+  admissionProgramId String
+  unitCode           String
+  title              String
+  creditHours        Int              @default(3)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  admissionProgram   AdmissionProgram @relation(fields: [admissionProgramId], references: [id], onDelete: Cascade)
+  results            StudentUnitResult[]
+
+  @@unique([admissionProgramId, unitCode])
+  @@index([admissionProgramId])
 }
 
-model Announcement {
-  id        String   @id @default(cuid())
-  courseId  String
-  authorId  String
-  title     String
-  body      String
-  createdAt DateTime @default(now())
-  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  author    User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+model StudentDegreeEnrollment {
+  userId               String           @id
+  admissionProgramId   String
+  enrolledAt           DateTime         @default(now())
+  user                 User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admissionProgram     AdmissionProgram @relation(fields: [admissionProgramId], references: [id], onDelete: Cascade)
+
+  @@index([admissionProgramId])
 }
 
-model CourseMaterial {
-  id            String   @id @default(cuid())
-  courseId      String
-  title         String
-  fileName      String
-  storedPath    String
-  mimeType      String?
-  sizeBytes     Int
-  uploadedById  String
-  createdAt     DateTime @default(now())
-  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  uploadedBy    User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+model StudentUnitResult {
+  id                  String             @id @default(cuid())
+  userId              String
+  programCourseUnitId String
+  academicYear        Int
+  semesterNumber      Int
+  scorePercent        Int
+  recordedByUserId    String?
+  recordedAt          DateTime           @default(now())
+  user                User               @relation("StudentUnitResults", fields: [userId], references: [id], onDelete: Cascade)
+  programCourseUnit   ProgramCourseUnit  @relation(fields: [programCourseUnitId], references: [id], onDelete: Cascade)
+  recordedByUser      User?              @relation("UnitResultsEnteredByHod", fields: [recordedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, programCourseUnitId, academicYear, semesterNumber])
+  @@index([userId, academicYear, semesterNumber])
 }
 
-model Enrollment {
-  id       String @id @default(cuid())
-  userId   String
-  courseId String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+model TuitionAssessment {
+  id             String   @id @default(cuid())
+  userId         String
+  label          String
+  description    String?
+  amountMinor    Int
+  currency       String   @default("SSP")
+  academicYear   Int
+  semesterNumber Int
+  status         String   @default("OUTSTANDING")
+  recordedAt     DateTime @default(now())
+  paidAt         DateTime?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, courseId])
-}
-
-model Assignment {
-  id          String   @id @default(cuid())
-  courseId    String
-  title       String
-  description String?
-  maxPoints   Int      @default(100)
-  dueDate     DateTime
-  createdAt   DateTime @default(now())
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  progress    AssignmentProgress[]
-}
-
-model AssignmentProgress {
-  id                   String      @id @default(cuid())
-  userId               String
-  assignmentId         String
-  status               String      @default("PENDING")
-  grade                Int?
-  submittedAt          DateTime?
-  submissionStoredPath String?
-  submissionFileName   String?
-  feedback             String?
-  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignment           Assignment  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, assignmentId])
+  @@index([userId, academicYear])
 }

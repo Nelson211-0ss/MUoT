@@ -1,105 +1,112 @@
-# Magwi University of Technology — Website
+# MUoT — Magwi University of Technology
 
-Next.js app for **Magwi University of Technology** (frontend + API routes, Prisma + SQLite for local development).
+This repo contains:
+
+1. **Root Next.js application** — public site, portals, admissions, and App Router APIs backed by **Prisma** (SQLite locally).
+   Teaching, quizzes, assignments, forums, grades, and course resources are intentionally **outside** this codebase — teams use **Moodle** (`NEXT_PUBLIC_MOODLE_URL`).
+2. **Optional monorepo** — **`frontend/`** (TypeScript façade) + **`backend/`** (Laravel 11 API) + **`docker/`** compose. Details: [`docs/PORTAL_STACK.md`](docs/PORTAL_STACK.md).
 
 ## Prerequisites
 
-- **Node.js** (LTS recommended)
-- **npm**
+Node.js LTS (for the root app and `frontend/`), npm. For the Laravel stack: PHP 8.2+, Composer, PostgreSQL when not using SQLite.
 
-## 1. Go to the project folder
+---
+
+## Root app (main site)
+
+### Setup
+
+Clone or open this repository and use **this folder as the project root** (rename as you like):
 
 ```bash
-cd magwi-university
+cd MUoT   # or: cd path/to/your-checkout
 ```
 
-(Or use the full path, e.g. `cd /path/to/magwi-university`.)
+Environment (copy **[`.env.example`](.env.example)** → `.`):
 
-## 2. Environment variables
-
-Create a `.env` file in this folder (you can copy `.env.example`):
-
-- `DATABASE_URL="file:./dev.db"`
-- `JWT_SECRET` — use a **strong secret at least 16 characters** (required for auth)
-
-## 3. Install dependencies
+| Variable | Notes |
+| --- | --- |
+| `DATABASE_URL` | Example: `"file:./dev.db"` (SQLite) |
+| `JWT_SECRET` | Strong secret, ≥ 16 chars (JWT session cookie auth) |
+| `NEXT_PUBLIC_MOODLE_URL` | Base URL of your Moodle site (linked from nav + portals) |
 
 ```bash
 npm install
-```
-
-If installs fail or behave oddly, try a clean install:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-## 4. Database (Prisma)
-
-Generate the client and apply the schema to the local SQLite database:
-
-```bash
 npx prisma generate
 npx prisma db push
 ```
 
-**Optional — load demo data** (demo user, courses, assignments):
+**Schema note:** Prisma no longer stores courses, assignments, or materials — `db push` will drop those legacy tables from your local SQLite file. All teaching data lives in Moodle.
+
+Optional demo data:
 
 ```bash
-node prisma/seed.js
+npm run db:seed
+# or: node prisma/seed.js
 ```
-
-## 5. Run the development server
 
 ```bash
 npm run dev
 ```
 
-Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+Open **http://localhost:3000**
 
-### Demo logins (after seed)
+### Scripts
 
-Demo users are created by `node prisma/seed.js` (or `npm run db:seed`). **These are for local development only.**
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Production build (`prisma generate` then Next build) |
+| `npm start` | Production server |
+| `npm run db:push` | Sync Prisma schema to DB |
+| `npm run db:seed` | Run `prisma/seed.js` |
+
+### Demo logins (after `db:seed`)
+
+For **local development only**. Roles and permissions come from **`prisma/seed.js`** via **`prisma/rbac-matrix.cjs`**.
 
 | Role | Email | Password |
-|------|--------|----------|
+| --- | --- | --- |
 | Student | `demo@mut.edu` | `demo123` |
 | Lecturer | `lecturer@mut.edu` | `lecturer123` |
 | Admin | `admin@mut.edu` | `admin123` |
+| Super admin | `super@mut.edu` | `super123` |
+| Finance | `finance@mut.edu` | `finance123` |
+| Admissions | `admissions@mut.edu` | `admissions123` |
+| Department admin | `dept@mut.edu` | `dept123` |
+| Registrar | `registrar@mut.edu` | `registrar123` |
+| Applicant | `applicant@mut.edu` | `apply123` |
 
-- **Student portal:** [http://localhost:3000/student-portal](http://localhost:3000/student-portal)
-- **Lecturer portal:** [http://localhost:3000/lecturer-portal](http://localhost:3000/lecturer-portal)
-- **Admin:** [http://localhost:3000/admin](http://localhost:3000/admin)
+Routes (role-gated):
 
-## Production build
+- Student: **`/student-portal`**
+- Lecturer: **`/lecturer-portal`**
+- Management: **`/admin`**
 
-```bash
-npm run build
-npm start
-```
+---
 
-## Useful npm scripts
+## Parallel portal stack (`frontend/` + `backend/` + Docker)
 
-| Command | Description |
-|--------|-------------|
-| `npm run dev` | Development server |
-| `npm run build` | Production build (runs `prisma generate` first) |
-| `npm start` | Start production server |
-| `npm run db:push` | `prisma db push` |
-| `npm run db:seed` | Run `prisma/seed.js` |
+| Path | Role |
+| --- | --- |
+| `frontend/` | Next.js (App Router, TypeScript, Tailwind, Zustand shell) hitting Laravel |
+| `backend/` | Laravel 11 REST **`/api/v1/*`**, Sanctum, Postgres-oriented migrations |
+| `docker/` | Postgres, Redis, nginx, Laravel and Next dev services |
 
-## Stack
+Bootstrap and seeded API users are documented in **`docs/PORTAL_STACK.md`**.
 
-- **Next.js** (App Router), **React**, **Tailwind CSS**
-- **Prisma** + **SQLite** (local); point `DATABASE_URL` to PostgreSQL for production
-- **Auth:** JWT in http-only cookie, **bcrypt** passwords
+---
 
-## Learn more
+## Stack summary
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
+**Root:** Next.js (App Router), React, Tailwind, Prisma, SQLite (local) / Postgres (production), bcrypt + JWT cookie auth.
 
-## Deploy
+**Portal monorepo:** Laravel 11, Sanctum, PostgreSQL targets, Moodle integration helpers under `backend/app/Services/Integrations/Moodle/`.
 
-Deploy to [Vercel](https://vercel.com) or any Node host. Set `DATABASE_URL` and `JWT_SECRET` in the host environment. For serverless, prefer a hosted PostgreSQL database over SQLite.
+## Deploy (root app)
+
+Compatible with **[Vercel](https://vercel.com)** or any Node host. Set **`DATABASE_URL`** (prefer hosted Postgres) and **`JWT_SECRET`**. SQLite is suitable for local demos only.
+
+## References
+
+- [Next.js](https://nextjs.org/docs), [Prisma](https://www.prisma.io/docs), [Laravel](https://laravel.com/docs)

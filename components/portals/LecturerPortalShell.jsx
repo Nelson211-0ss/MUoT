@@ -2,65 +2,40 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import {
-  LayoutDashboard,
-  BookOpen,
-  Users,
-  ClipboardList,
-  BarChart3,
-  Video,
-  FileBarChart2,
-  Settings,
-  PanelLeft,
-  PanelRight,
-} from 'lucide-react'
+import { LayoutDashboard, BarChart3, MessageSquare, Settings, PanelLeft, PanelRight, FileBarChart2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import LecturerPortalWorkspace from '@/components/LecturerPortalWorkspace'
-import LecturerCourseMaterialsPanel from '@/components/LecturerCourseMaterialsPanel'
 import EcosystemPlaceholder from '@/components/portals/EcosystemPlaceholder'
 import PortalPasswordSection from '@/components/PortalPasswordSection'
 import LogoutButton from '@/components/LogoutButton'
+import MoodleHubCallout from '@/components/MoodleHubCallout'
 
-const TABS = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'courses', label: 'My courses', icon: BookOpen },
-  { id: 'students', label: 'Students', icon: Users },
-  { id: 'assignments', label: 'Assignments', icon: ClipboardList },
-  { id: 'grades', label: 'Grades', icon: BarChart3 },
-  { id: 'live', label: 'Live classes', icon: Video },
-  { id: 'reports', label: 'Reports', icon: FileBarChart2 },
-  { id: 'settings', label: 'Settings', icon: Settings },
+const LECTURER_NAV = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, permission: 'lecturer.nav.dashboard' },
+  { id: 'reports', label: 'Reports', icon: FileBarChart2, permission: 'lecturer.nav.reports' },
+  { id: 'messages', label: 'Messages', icon: MessageSquare, permission: 'lecturer.nav.messages' },
+  { id: 'settings', label: 'Settings', icon: Settings, permission: 'lecturer.nav.settings' },
 ]
 
-export default function LecturerPortalShell({ courses, faculty }) {
+export default function LecturerPortalShell({ faculty, permissionKeys = [] }) {
   const searchParams = useSearchParams()
   const raw = searchParams.get('tab') ?? 'dashboard'
-  const tab = TABS.some((t) => t.id === raw) ? raw : 'dashboard'
-  const [dockOpen, setDockOpen] = useState(true)
 
-  const materialsOnly = useMemo(
-    () =>
-      courses.map((c) => ({
-        id: c.id,
-        code: c.code,
-        title: c.title,
-        materials: c.materials,
-      })),
-    [courses],
+  const navPermitted = useMemo(
+    () => LECTURER_NAV.filter((item) => permissionKeys.includes(item.permission)),
+    [permissionKeys],
   )
 
-  const roster = useMemo(() => {
-    const map = new Map()
-    for (const c of courses) {
-      for (const row of c.roster ?? []) {
-        if (!map.has(row.email)) map.set(row.email, row)
-      }
-    }
-    return [...map.values()]
-  }, [courses])
+  const tab = navPermitted.some((t) => t.id === raw) ? raw : navPermitted[0]?.id ?? 'dashboard'
+  const [dockOpen, setDockOpen] = useState(true)
 
-  const rosterCount = roster.length
-  const courseCount = courses.length
+  if (navPermitted.length === 0) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center text-sm text-gray-700 space-y-4">
+        <p>Your profile is missing lecturer navigation scopes. Contact the registrar or super administrator.</p>
+        <LogoutButton />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 min-h-[60vh]">
@@ -87,137 +62,73 @@ export default function LecturerPortalShell({ courses, faculty }) {
           </button>
         </div>
         <nav className="flex flex-col gap-1 p-2">
-          {TABS.map((item) => {
+          {navPermitted.map((item) => {
             const Icon = item.icon
             const active = tab === item.id
             return (
               <Link
                 key={item.id}
                 href={`/lecturer-portal?tab=${item.id}`}
-                prefetch={false}
                 title={!dockOpen ? item.label : undefined}
-                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold transition-colors ${
-                  active ? 'bg-white text-primary shadow-sm' : 'text-white/88 hover:bg-white/10'
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                  active ? 'bg-white text-primary shadow-sm' : 'text-white/90 hover:bg-white/10'
                 }`}
               >
-                <Icon className="w-5 h-5 shrink-0" aria-hidden strokeWidth={1.75} />
-                {dockOpen ? <span>{item.label}</span> : null}
+                <Icon className="w-5 h-5 shrink-0" strokeWidth={1.75} />
+                {dockOpen ? <span className="truncate">{item.label}</span> : null}
               </Link>
             )
           })}
         </nav>
+        <div className="mt-auto p-3 border-t border-white/10">
+          <LogoutButton className="w-full justify-center bg-white/10 hover:bg-white/20 text-white border border-white/20" />
+        </div>
       </aside>
 
-      <div className="flex-1 min-w-0 space-y-6">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-4">
+      <section className="flex-1 min-w-0 rounded-2xl border border-gray-100 bg-white p-5 sm:p-8 shadow-sm">
+        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase font-semibold text-secondary tracking-wide">Lecturer workspace</p>
-            <h2 className="text-2xl font-bold text-primary mt-1">
-              {TABS.find((t) => t.id === tab)?.label ?? 'Teaching'}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {faculty ? (
-                <>
-                  <span className="font-semibold text-gray-800">{faculty.name}</span>
-                  <span className="mx-2">·</span>
-                  <span className="font-medium text-primary">{faculty.email}</span>
-                </>
-              ) : null}
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Lecturer desk</p>
+            <h1 className="text-2xl font-bold text-primary mt-1 capitalize">{tab.replace('-', ' ')}</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              {faculty?.name} · {faculty?.email}
             </p>
           </div>
-          <LogoutButton />
-        </div>
+          <BarChart3 className="hidden sm:block w-10 h-10 text-primary/30" aria-hidden />
+        </header>
 
         {tab === 'dashboard' && (
-          <>
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="rounded-xl border bg-white shadow-sm p-5">
-                <p className="text-xs uppercase text-gray-500 font-semibold">Courses instructed</p>
-                <p className="text-3xl font-bold text-primary">{courseCount}</p>
-              </div>
-              <div className="rounded-xl border bg-white shadow-sm p-5">
-                <p className="text-xs uppercase text-gray-500 font-semibold">Distinct students</p>
-                <p className="text-3xl font-bold text-primary">{rosterCount}</p>
-              </div>
-              <div className="rounded-xl border bg-white shadow-sm p-5">
-                <p className="text-xs uppercase text-gray-500 font-semibold">Next wave</p>
-                <p className="text-sm text-gray-600 leading-snug">Live sessions, attendance ingest, LMS analytics.</p>
-              </div>
-            </div>
-            <LecturerPortalWorkspace courses={courses} />
-          </>
-        )}
-
-        {tab === 'courses' && (
-          <div className="space-y-4">
-            <EcosystemPlaceholder
-              title="Authoring & modules"
-              description="Soon: drag-and-drop learning paths, chunked video timelines, formative quizzes—all versioned beside your Magwi course codes."
-              footnote="Uploads propagate instantly to enrolled students via the catalogue."
+          <div className="space-y-6">
+            <MoodleHubCallout
+              headline="Plan, assess, and share resources"
+              body="Lesson content, quizzes, forums, grading, rubrics, and rubric feedback are authored inside Moodle."
             />
-            <LecturerCourseMaterialsPanel courses={materialsOnly} />
+            <p className="text-sm text-gray-600">
+              MUoT web keeps SSO entry, HR-light profile settings, and high-level approvals. Dive into Moodle for day-to-day teaching.
+            </p>
           </div>
-        )}
-
-        {tab === 'students' && (
-          <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
-                <tr>
-                  <th className="px-4 py-2">Name</th>
-                  <th className="px-4 py-2">Email</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {roster.length === 0 ? (
-                  <tr>
-                    <td colSpan={2} className="px-4 py-6 text-center text-gray-500">
-                      Roster fills automatically once students are enrolled via admin/portals.
-                    </td>
-                  </tr>
-                ) : (
-                  roster.map((r) => (
-                    <tr key={r.email}>
-                      <td className="px-4 py-2 font-medium">{r.name}</td>
-                      <td className="px-4 py-2">{r.email}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {(tab === 'assignments' || tab === 'grades') && (
-          <EcosystemPlaceholder
-            title="Assignments & mastery insights"
-            description="Unified authoring, moderated exams, and cohort analytics converge here—the teaching cockpit on Dashboard already exposes live grading workflows."
-          />
-        )}
-
-        {tab === 'live' && (
-          <EcosystemPlaceholder
-            title="Live & hybrid classes"
-            description="Meeting bridges, breakout tracking, attendance marks, and policy-controlled recordings—all tied to SSO."
-          />
         )}
 
         {tab === 'reports' && (
           <EcosystemPlaceholder
-            title="Faculty analytics"
-            description="Downloadable attainment packs plus predictive risk scores for departmental leads."
+            title="Teaching extracts"
+            description="Aggregated attainment packs that combine Moodle analytics with registrar data land here eventually. Today, use Moodle reporting tools plus programme exports managed centrally."
+          />
+        )}
+
+        {tab === 'messages' && (
+          <EcosystemPlaceholder
+            title="Messaging"
+            description="Most academic conversations should stay in Moodle & institutional email. Lightweight broadcast tooling will converge here."
           />
         )}
 
         {tab === 'settings' && (
-          <div className="max-w-xl space-y-6">
-            <p className="text-sm text-gray-600">
-              Notification routing & delegation preferences migrate here when SSO depth ships.
-            </p>
+          <div className="space-y-6 max-w-xl">
             <PortalPasswordSection />
           </div>
         )}
-      </div>
+      </section>
     </div>
   )
 }

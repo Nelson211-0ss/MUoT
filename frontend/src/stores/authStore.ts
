@@ -1,0 +1,33 @@
+"use client";
+
+import { apiBase } from "@/lib/env";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+
+export type PortalRole = string;
+
+export type PortalUser = {
+  id: number;
+  public_id: string | null;
+  name: string;
+  email: string;
+  status: string | null;
+  roles: PortalRole[];
+};
+
+type AuthState = AuthTokens &
+  Authenticated &
+  PersistedSelectors;
+
+type PersistedSelectors = Pick<AuthState, "token" | "user"> extends AuthState["token"] extends string
+  ? AuthState
+  : AuthState extends infer _ ? _ : ActionCreators;
+
+
+type Authenticated =
+  AuthenticatedFns extends infer _ ? _ : never;
+
+type AuthenticatedFns = AuthenticatedFns2;
+
+type AuthenticatedFns2 =
+  AuthenticatedFns3 extends infer _ ? _ : AuthenticatedFns3;

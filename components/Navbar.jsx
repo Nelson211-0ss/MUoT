@@ -14,35 +14,61 @@ import {
   Shield,
   LogOut,
   BookOpen,
+  UserCircle,
+  ClipboardList,
 } from 'lucide-react'
 import Logo from '@/components/Logo'
 import SocialLinks from '@/components/SocialLinks'
+import { isHoDRoleSlug, isManagementRoleSlug } from '@/lib/rbac/constants'
 
-/** Top-level routes (E-Learning and Portals each have their own dropdown). */
-const mainLinksBeforeLearning = [
+const NAV_PRE_EL = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/programs', label: 'Programs' },
-  { href: '/admissions', label: 'Admissions' },
 ]
 
-const mainLinksAfterLearning = [
+const ADMISSION_NAV = [
+  { id: 'hub', label: 'Admissions overview', subtitle: 'Strategic onboarding narrative', href: '/admissions' },
+  {
+    id: 'apply',
+    label: 'Apply online',
+    subtitle: 'SSO + dossier wizard launchpad',
+    href: '/admissions/apply',
+  },
+  { id: 'req', label: 'Requirements', subtitle: 'Portfolio & certification expectations', href: '/admissions/requirements' },
+  { id: 'fees', label: 'Tuition & fees', subtitle: 'SSP schedules + acceptance levies', href: '/admissions/tuition' },
+  { id: 'sch', label: 'Scholarships', subtitle: 'ICT empowerment awards', href: '/admissions/scholarships' },
+  {
+    id: 'status',
+    label: 'Application status',
+    subtitle: 'SSO timelines & desk messaging',
+    href: '/admissions/status',
+  },
+  { id: 'faq', label: 'FAQs', subtitle: 'Admissions concierge automations', href: '/admissions/faqs' },
+]
+
+const NAV_AFTER_EL = [
   { href: '/news', label: 'News' },
   { href: '/contact', label: 'Contact' },
 ]
 
-/** E-Learning hub (dropdown keeps room for more LMS-facing links later). */
 const E_LEARNING_MENU = [
   {
-    id: 'catalogue',
-    label: 'Course catalogue',
-    href: '/courses',
-    subtitle: 'Browse listings, modalities, and prerequisites',
+    id: 'moodle',
+    label: 'Moodle LMS',
+    href: '/moodle',
+    subtitle: 'Courses, quizzes, forums, grading & learning resources',
     Icon: BookOpen,
   },
 ]
 
 const LOGIN_TARGETS = [
+  {
+    label: 'Applicant portal',
+    next: '/applicant-portal',
+    intent: 'applicant',
+    Icon: UserCircle,
+  },
   {
     label: 'Student Portal',
     next: '/student-portal',
@@ -56,7 +82,13 @@ const LOGIN_TARGETS = [
     Icon: Laptop,
   },
   {
-    label: 'Administrator',
+    label: 'HOD workspace',
+    next: '/hod-portal',
+    intent: 'hod',
+    Icon: ClipboardList,
+  },
+  {
+    label: 'Management desk',
     next: '/admin',
     intent: 'admin',
     Icon: Shield,
@@ -67,8 +99,10 @@ function shouldDisablePrefetch(href) {
   if (!href || href === '/') return false
   if (href.startsWith('/student-portal')) return true
   if (href.startsWith('/lecturer-portal')) return true
+  if (href.startsWith('/hod-portal')) return true
   if (href.startsWith('/admin')) return true
-  if (href.startsWith('/courses')) return false
+  if (href.startsWith('/applicant-portal')) return true
+  if (href.startsWith('/moodle')) return false
   return false
 }
 
@@ -83,14 +117,20 @@ function portalMenuEntries(sessionUser) {
     }))
   }
   const role = String(sessionUser.role ?? 'STUDENT').trim().toUpperCase()
+  if (isManagementRoleSlug(role)) {
+    return [{ label: 'Management console', intent: 'admin', Icon: Shield, href: '/admin' }]
+  }
+  if (role === 'APPLICANT') {
+    return [{ label: 'Applicant portal', intent: 'applicant', Icon: UserCircle, href: '/applicant-portal' }]
+  }
   if (role === 'STUDENT') {
     return [{ label: 'Student portal', intent: 'student', Icon: GraduationCap, href: '/student-portal' }]
   }
   if (role === 'LECTURER') {
     return [{ label: 'Lecturer portal', intent: 'lecturer', Icon: Laptop, href: '/lecturer-portal' }]
   }
-  if (role === 'ADMIN') {
-    return [{ label: 'Administrator', intent: 'admin', Icon: Shield, href: '/admin' }]
+  if (isHoDRoleSlug(role)) {
+    return [{ label: 'HOD workspace', intent: 'hod', Icon: ClipboardList, href: '/hod-portal' }]
   }
   return []
 }
@@ -107,12 +147,14 @@ export default function Navbar() {
   const [loginMenu, setLoginMenu] = useState(false)
   const [portalsMenu, setPortalsMenu] = useState(false)
   const [elearningMenu, setElearningMenu] = useState(false)
+  const [admissionsMenu, setAdmissionsMenu] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const pathname = usePathname()
   const [sessionUser, setSessionUser] = useState(null)
   const loginRef = useRef(null)
   const portalsRef = useRef(null)
   const elearningRef = useRef(null)
+  const admissionsRef = useRef(null)
 
   useEffect(() => {
     fetch('/api/auth/session')
@@ -130,6 +172,13 @@ export default function Navbar() {
     () => E_LEARNING_MENU.some(({ href }) => pathnameMatchesHref(pathname, href)),
     [pathname],
   )
+  const admissionsActive = useMemo(
+    () =>
+      ['/admissions', '/applicant-portal'].some(
+        (p) => pathname === p || pathname.startsWith(`${p}/`),
+      ),
+    [pathname],
+  )
 
   useEffect(() => {
     function onPointerDown(ev) {
@@ -137,6 +186,7 @@ export default function Navbar() {
       if (loginRef.current && !loginRef.current.contains(t)) setLoginMenu(false)
       if (portalsRef.current && !portalsRef.current.contains(t)) setPortalsMenu(false)
       if (elearningRef.current && !elearningRef.current.contains(t)) setElearningMenu(false)
+      if (admissionsRef.current && !admissionsRef.current.contains(t)) setAdmissionsMenu(false)
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
@@ -175,7 +225,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden xl:flex items-center gap-5 2xl:gap-7 text-[14px] font-medium text-gray-700">
-          {mainLinksBeforeLearning.map((link) => {
+          {NAV_PRE_EL.map((link) => {
             const active = pathname === link.href.split('?')[0]
             const noPrefetch = shouldDisablePrefetch(link.href)
             return (
@@ -194,6 +244,58 @@ export default function Navbar() {
               </Link>
             )
           })}
+          <div ref={admissionsRef} className="relative">
+            <button
+              type="button"
+              aria-expanded={admissionsMenu}
+              aria-haspopup="menu"
+              aria-label="Admissions menu"
+              onClick={() => {
+                setAdmissionsMenu((m) => !m)
+                setElearningMenu(false)
+                setPortalsMenu(false)
+              }}
+              className={`relative pb-1 inline-flex items-center gap-1 hover:text-primary transition-colors ${
+                admissionsActive ? 'text-primary' : ''
+              }`}
+            >
+              Admissions
+              <ChevronDown
+                size={16}
+                className={`opacity-70 transition-transform ${admissionsMenu ? 'rotate-180' : ''}`}
+                aria-hidden
+              />
+              {admissionsActive ? (
+                <span className="absolute -bottom-1 left-0 right-0 mx-auto h-[3px] w-6 bg-secondary rounded-full" />
+              ) : null}
+            </button>
+            {admissionsMenu ? (
+              <div
+                role="menu"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[18rem] rounded-xl border border-gray-100 bg-white shadow-xl py-2 z-[60]"
+              >
+                <p className="px-3 pb-1 text-[10px] uppercase font-bold text-gray-400 tracking-wide">
+                  Undergraduate admissions
+                </p>
+                {ADMISSION_NAV.map(({ id, label, subtitle, href }) => (
+                  <Link
+                    key={id}
+                    role="menuitem"
+                    href={href}
+                    prefetch={shouldDisablePrefetch(href) ? false : undefined}
+                    className="flex items-start gap-2 px-3 py-2.5 text-sm text-gray-700 hover:bg-slate-50"
+                    onClick={() => setAdmissionsMenu(false)}
+                  >
+                    <PenSquare className="w-4 h-4 mt-0.5 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
+                    <span>
+                      <span className="font-semibold text-primary block">{label}</span>
+                      <span className="text-xs text-gray-500">{subtitle}</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
           <div ref={elearningRef} className="relative">
             <button
               type="button"
@@ -203,6 +305,7 @@ export default function Navbar() {
               onClick={() => {
                 setElearningMenu((m) => !m)
                 setPortalsMenu(false)
+                setAdmissionsMenu(false)
               }}
               className={`relative pb-1 inline-flex items-center gap-1 hover:text-primary transition-colors ${
                 elearningActive ? 'text-primary' : ''
@@ -224,7 +327,7 @@ export default function Navbar() {
                 className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[15.75rem] rounded-xl border border-gray-100 bg-white shadow-xl py-2 z-[60]"
               >
                 <p className="px-3 pb-1 text-[10px] uppercase font-bold text-gray-400 tracking-wide">
-                  Online teaching & courses
+                  Moodle LMS
                 </p>
                 {E_LEARNING_MENU.map(({ id, label, href, subtitle, Icon }) => (
                   <Link
@@ -245,7 +348,7 @@ export default function Navbar() {
               </div>
             ) : null}
           </div>
-          {mainLinksAfterLearning.map((link) => {
+          {NAV_AFTER_EL.map((link) => {
             const active = pathname === link.href.split('?')[0]
             const noPrefetch = shouldDisablePrefetch(link.href)
             return (
@@ -273,6 +376,7 @@ export default function Navbar() {
               onClick={() => {
                 setPortalsMenu((m) => !m)
                 setElearningMenu(false)
+                setAdmissionsMenu(false)
               }}
               className={`relative pb-1 inline-flex items-center gap-1 hover:text-primary transition-colors ${
                 portalsActive ? 'text-primary' : ''
@@ -373,7 +477,7 @@ export default function Navbar() {
             </div>
           )}
           <Link
-            href="/admissions"
+            href={`/login?intent=applicant&next=${encodeURIComponent('/applicant-portal/application')}`}
             className="bg-secondary text-primary px-5 py-2 rounded-md text-sm font-bold hover:brightness-95 transition-all inline-flex items-center gap-2"
           >
             <PenSquare size={17} strokeWidth={1.75} aria-hidden />
@@ -393,7 +497,7 @@ export default function Navbar() {
 
       {open ? (
         <div className="xl:hidden border-t px-4 py-4 flex flex-col gap-1 font-medium text-gray-800 bg-white max-h-[min(82vh,_640px)] overflow-y-auto">
-          {mainLinksBeforeLearning.map((link) => {
+          {NAV_PRE_EL.map((link) => {
             const noPrefetch = shouldDisablePrefetch(link.href)
             return (
               <Link
@@ -407,6 +511,26 @@ export default function Navbar() {
               </Link>
             )
           })}
+          <details className="border-b border-gray-50 py-2 group">
+            <summary className="list-none cursor-pointer py-2 flex items-center justify-between hover:text-primary [&::-webkit-details-marker]:hidden">
+              <span>Admissions</span>
+              <ChevronDown size={18} className="opacity-70 group-open:rotate-180 transition-transform shrink-0" />
+            </summary>
+            <div className="pl-3 pt-2 flex flex-col gap-1 border-l-2 border-slate-100 ml-1 mb-2">
+              {ADMISSION_NAV.map(({ id, label, href }) => (
+                <Link
+                  key={`mob-adm-${id}`}
+                  href={href}
+                  prefetch={shouldDisablePrefetch(href) ? false : undefined}
+                  onClick={() => setOpen(false)}
+                  className="py-2 text-sm inline-flex items-center gap-2 text-primary font-semibold"
+                >
+                  <PenSquare className="w-4 h-4 shrink-0" aria-hidden strokeWidth={1.75} />
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </details>
           <details className="border-b border-gray-50 py-2 group">
             <summary className="list-none cursor-pointer py-2 flex items-center justify-between hover:text-primary [&::-webkit-details-marker]:hidden">
               <span>E-Learning</span>
@@ -427,7 +551,7 @@ export default function Navbar() {
               ))}
             </div>
           </details>
-          {mainLinksAfterLearning.map((link) => {
+          {NAV_AFTER_EL.map((link) => {
             const noPrefetch = shouldDisablePrefetch(link.href)
             return (
               <Link
@@ -490,7 +614,7 @@ export default function Navbar() {
               </button>
             )}
             <Link
-              href="/admissions"
+              href={`/login?intent=applicant&next=${encodeURIComponent('/applicant-portal/application')}`}
               onClick={() => setOpen(false)}
               className="bg-secondary text-primary px-4 py-2 rounded-md text-sm font-bold inline-flex items-center gap-2"
             >

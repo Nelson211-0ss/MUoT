@@ -1,11 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   LayoutDashboard,
   UsersRound,
-  ClipboardList,
   IdCard,
   PanelLeftClose,
   PanelLeft,
@@ -15,35 +15,168 @@ import {
   PieChart,
   Globe,
   SlidersHorizontal,
+  ShieldCheck,
+  BookMarked,
+  Award,
+  CalendarClock,
+  Bell,
+  Shield,
+  ScrollText,
 } from 'lucide-react'
 
-import Link from 'next/link'
 import EcosystemPlaceholder from '@/components/portals/EcosystemPlaceholder'
+import AdmissionManagementWorkspace from '@/components/admissions/AdmissionManagementWorkspace'
+import { MANAGEMENT_ROLE_SLUGS } from '@/lib/rbac/constants'
+import { P } from '@/lib/rbac/constants'
 
-const SECTIONS = [
-  { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'people', label: 'Students & lecturers', icon: UsersRound },
-  { id: 'enrollments', label: 'Enrollments', icon: ClipboardList },
-  { id: 'directory', label: 'Directory', icon: IdCard },
-  { id: 'admissions', label: 'Admissions', icon: GraduationCap },
-  { id: 'finance', label: 'Finance', icon: CreditCard },
-  { id: 'departments', label: 'Departments', icon: Building2 },
-  { id: 'reports', label: 'Reports', icon: PieChart },
-  { id: 'cms', label: 'Website CMS', icon: Globe },
-  { id: 'settings', label: 'Settings', icon: SlidersHorizontal },
+const SECTION_DEFS = [
+  {
+    id: 'overview',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    requireAny: [P.MANAGEMENT_DASHBOARD],
+  },
+  {
+    id: 'people',
+    label: 'Users & staffing',
+    icon: UsersRound,
+    requireAny: [P.USERS_VIEW, P.USERS_MANAGE],
+  },
+  {
+    id: 'directory',
+    label: 'Directory',
+    icon: IdCard,
+    requireAny: [P.DIRECTORY_VIEW],
+  },
+  {
+    id: 'admissions',
+    label: 'Admissions',
+    icon: GraduationCap,
+    requireAny: [
+      P.ADMISSIONS_VIEW,
+      P.ADMISSIONS_MANAGE,
+      P.ADMISSIONS_PIPELINE_VIEW,
+      P.ADMISSIONS_APPLICATION_REVIEW,
+      P.ADMISSIONS_ANALYTICS_VIEW,
+    ],
+  },
+  {
+    id: 'finance',
+    label: 'Finance',
+    icon: CreditCard,
+    requireAny: [P.FINANCE_VIEW, P.FINANCE_MANAGE],
+  },
+  {
+    id: 'departments',
+    label: 'Departments',
+    icon: Building2,
+    requireAny: [P.DEPARTMENTS_MANAGE],
+  },
+  {
+    id: 'programs',
+    label: 'Programs',
+    icon: BookMarked,
+    requireAny: [P.PROGRAMS_MANAGE],
+  },
+  {
+    id: 'certificates',
+    label: 'Certificates',
+    icon: Award,
+    requireAny: [P.CERTIFICATES_MANAGE],
+  },
+  {
+    id: 'timetable',
+    label: 'Timetable',
+    icon: CalendarClock,
+    requireAny: [P.TIMETABLE_MANAGE],
+  },
+  {
+    id: 'reports',
+    label: 'Reports',
+    icon: PieChart,
+    requireAny: [P.REPORTS_VIEW],
+  },
+  {
+    id: 'cms',
+    label: 'Website CMS',
+    icon: Globe,
+    requireAny: [P.CMS_MANAGE],
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    icon: Bell,
+    requireAny: [P.NOTIFY_MANAGE],
+  },
+  {
+    id: 'audit',
+    label: 'Audit logs',
+    icon: ScrollText,
+    requireAny: [P.AUDIT_VIEW],
+  },
+  {
+    id: 'rbac',
+    label: 'RBAC control',
+    icon: ShieldCheck,
+    requireAny: [P.RBAC_MANAGE],
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: SlidersHorizontal,
+    requireAny: [P.SETTINGS_VIEW, P.SETTINGS_MANAGE],
+  },
 ]
 
-export default function AdminDashboard({ users, courses, enrollments = [] }) {
+export default function AdminDashboard({
+  viewer = null,
+  users,
+  permissionKeys = [],
+  viewerRole = 'ADMIN',
+}) {
   const router = useRouter()
   const [msg, setMsg] = useState(null)
   const [section, setSection] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [auditLogs, setAuditLogs] = useState([])
+  const [auditLoading, setAuditLoading] = useState(false)
 
   const lecturers = users.filter((u) => u.role === 'LECTURER')
   const students = users.filter((u) => u.role === 'STUDENT')
-  const adminCount = users.filter((u) => u.role === 'ADMIN').length
+  const staffCount = users.filter((u) => MANAGEMENT_ROLE_SLUGS.has(u.role)).length
 
-  function flash(text, ok) {
+  const allow = (...keys) => keys.some((k) => permissionKeys.includes(k))
+
+  const sections = useMemo(
+    () => SECTION_DEFS.filter((def) => !def.requireAny?.length || def.requireAny.some((k) => permissionKeys.includes(k))),
+    [permissionKeys],
+  )
+
+  useEffect(() => {
+    if (sections.some((s) => s.id === section)) return
+    setSection(sections[0]?.id ?? 'overview')
+  }, [sections, section])
+
+  useEffect(() => {
+    if (section !== 'audit' || !permissionKeys.includes(P.AUDIT_VIEW)) return
+    let cancelled = false
+    async function load() {
+      setAuditLoading(true)
+      try {
+        const res = await fetch('/api/admin/audit-logs')
+        const data = await res.json().catch(() => ({}))
+        if (!cancelled && res.ok && Array.isArray(data.logs)) setAuditLogs(data.logs)
+      } finally {
+        if (!cancelled) setAuditLoading(false)
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [section, permissionKeys])
+
+  function flash(text, ok = true) {
     setMsg({ text, ok })
     setTimeout(() => setMsg(null), 4500)
   }
@@ -64,57 +197,21 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
     router.refresh()
   }
 
-  async function setLecturer(courseId, lecturerIdRaw) {
-    const lecturerId = lecturerIdRaw === '' ? null : lecturerIdRaw
-    const res = await fetch(`/api/admin/courses/${courseId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lecturerId }),
-    })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) return flash(data.error || 'Update failed', false)
-    flash('Course lecturer updated')
-    router.refresh()
-  }
 
-  async function enroll(e) {
-    e.preventDefault()
-    const fd = new FormData(e.currentTarget)
-    const userId = fd.get('userId')
-    const courseId = fd.get('courseId')
-    const res = await fetch('/api/admin/enrollments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, courseId }),
-    })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) return flash(data.error || 'Enrollment failed', false)
-    flash('Student enrolled')
-    router.refresh()
-  }
-
-  async function drop(userId, courseId) {
-    const res = await fetch(`/api/admin/enrollments?userId=${userId}&courseId=${courseId}`, {
-      method: 'DELETE',
-    })
-    if (!res.ok) return flash('Drop failed', false)
-    flash('Enrollment removed')
-    router.refresh()
-  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[min(70vh,900px)]">
       <div className="lg:hidden border-b border-gray-200 bg-slate-50 p-3">
         <label className="sr-only" htmlFor="admin-section-mobile">
-          Admin section
+          Management section
         </label>
         <select
           id="admin-section-mobile"
           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-800 bg-white"
-          value={section}
+          value={sections.some((s) => s.id === section) ? section : sections[0]?.id}
           onChange={(e) => setSection(e.target.value)}
         >
-          {SECTIONS.map((s) => (
+          {sections.map((s) => (
             <option key={s.id} value={s.id}>
               {s.label}
             </option>
@@ -129,9 +226,9 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
       >
         <div className="hidden lg:flex items-center justify-between gap-2 px-3 py-4 border-b border-white/10">
           {sidebarOpen ? (
-            <p className="text-xs font-bold uppercase tracking-wider text-white/90 pl-1">Admin</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-white/90 pl-1">Operations</p>
           ) : (
-            <span className="sr-only">Admin menu</span>
+            <span className="sr-only">Management menu</span>
           )}
           <button
             type="button"
@@ -147,8 +244,8 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
           </button>
         </div>
 
-        <nav className="hidden lg:flex flex-col gap-1 p-2 flex-1">
-          {SECTIONS.map((s) => {
+        <nav className="hidden lg:flex flex-col gap-1 p-2 flex-1 overflow-y-auto max-h-[70vh]">
+          {sections.map((s) => {
             const Icon = s.icon
             const active = section === s.id
             return (
@@ -171,7 +268,15 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
 
       <div className="flex-1 min-w-0 bg-slate-50/80">
         <div className="p-5 sm:p-8 max-w-4xl mx-auto space-y-8">
-          {msg && (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center gap-3 text-xs text-gray-700">
+            <Shield className="w-4 h-4 text-primary shrink-0" strokeWidth={1.75} />
+            <span>
+              Signed-in role <strong className="text-primary">{viewerRole}</strong> ·{' '}
+              {permissionKeys.length} RBAC scopes resolved for your session via user_roles junction.
+            </span>
+          </div>
+
+          {msg ? (
             <p
               className={`text-sm px-4 py-3 rounded-xl ${
                 msg.ok
@@ -181,19 +286,20 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
             >
               {msg.text}
             </p>
-          )}
+          ) : null}
 
           {section === 'overview' && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-bold text-primary text-xl">Overview</h2>
+                <h2 className="font-bold text-primary text-xl">Institutional pulse</h2>
                 <p className="text-sm text-gray-600 mt-1 max-w-2xl">
-                  Lecturers and official student accounts are provisioned here. Public registration remains student-only.
+                  Permission-aware management console aligned with Magwi’s RBAC lattice. Rows below reflect only data
+                  scopes you inherit from role assignments.
                 </p>
               </div>
               <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Users</p>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Users total</p>
                   <p className="text-3xl font-bold text-primary mt-2">{users.length}</p>
                 </div>
                 <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -205,16 +311,16 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
                   <p className="text-3xl font-bold text-primary mt-2">{lecturers.length}</p>
                 </div>
                 <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Courses</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{courses.length}</p>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Moodle LMS</p>
+                  <p className="text-sm font-semibold text-primary mt-2 leading-snug">
+                    Curriculum delivery
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Configure campus link via NEXT_PUBLIC_MOODLE_URL · no local mirror.</p>
                 </div>
               </div>
               <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm flex flex-wrap gap-6 text-sm text-gray-600">
                 <div>
-                  <span className="font-semibold text-gray-800">Admins:</span> {adminCount}
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-800">Active enrollments:</span> {enrollments.length}
+                  <span className="font-semibold text-gray-800">Elevated roles on campus:</span> {staffCount}
                 </div>
               </div>
             </div>
@@ -223,176 +329,59 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
           {section === 'people' && (
             <div className="space-y-10">
               <div>
-                <h2 className="font-bold text-primary text-xl">People & courses</h2>
-                <p className="text-sm text-gray-600 mt-1">Create accounts and assign teaching staff to modules.</p>
+                <h2 className="font-bold text-primary text-xl">Accounts</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Provision student and lecturer identities for campus workflows — module rostering and teaching stay in Moodle.
+                </p>
               </div>
 
-              <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-primary mb-4">Create user (lecturer or student)</h3>
-                <form onSubmit={createUser} className="grid sm:grid-cols-2 gap-3 max-w-2xl text-sm">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Full name</label>
-                    <input name="name" required minLength={2} className="w-full border rounded-md p-2.5" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Email</label>
-                    <input name="email" type="email" required className="w-full border rounded-md p-2.5" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Temporary password</label>
-                    <input name="password" type="password" required minLength={8} className="w-full border rounded-md p-2.5" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Role</label>
-                    <select name="role" className="w-full border rounded-md p-2.5" required defaultValue={''}>
-                      <option value="" disabled>
-                        Select…
-                      </option>
-                      <option value="STUDENT">Student</option>
-                      <option value="LECTURER">Lecturer</option>
-                    </select>
-                  </div>
-                  <button type="submit" className="sm:col-span-2 bg-primary text-white font-bold py-2.5 rounded-md hover:opacity-90">
-                    Create account
-                  </button>
-                </form>
-              </section>
-
-              <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-primary mb-4">Courses & lecturers</h3>
-                <div className="overflow-x-auto border border-gray-100 rounded-lg">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
-                      <tr>
-                        <th className="px-3 py-2">Course</th>
-                        <th className="px-3 py-2">Enrolled</th>
-                        <th className="px-3 py-2">Assign lecturer</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {courses.map((c) => (
-                        <tr key={c.id}>
-                          <td className="px-3 py-2 font-medium">
-                            {c.code} — {c.title}
-                          </td>
-                          <td className="px-3 py-2 text-gray-600">{c._count.enrollments}</td>
-                          <td className="px-3 py-2">
-                            <select
-                              defaultValue={c.lecturerId ?? ''}
-                              onChange={(e) => setLecturer(c.id, e.target.value)}
-                              className="border rounded-md px-2 py-1.5 text-xs max-w-[220px]"
-                            >
-                              <option value="">No lecturer assigned</option>
-                              {lecturers.map((l) => (
-                                <option key={l.id} value={l.id}>
-                                  {l.name} ({l.email})
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {section === 'enrollments' && (
-            <div className="space-y-10">
-              <div>
-                <h2 className="font-bold text-primary text-xl">Enrollments</h2>
-                <p className="text-sm text-gray-600 mt-1">Add or remove student–course links.</p>
-              </div>
-
-              <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-primary mb-4">Enroll student in course</h3>
-                <form onSubmit={enroll} className="flex flex-wrap gap-3 items-end text-sm">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Student</label>
-                    <select name="userId" className="border rounded-md px-2 py-2 min-w-[200px]" required defaultValue="">
-                      <option value="" disabled>
-                        Select student
-                      </option>
-                      {students.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name} — {s.email}
+              {allow(P.USERS_MANAGE) ? (
+                <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="font-semibold text-primary mb-4">Create user (student or lecturer)</h3>
+                  <form onSubmit={createUser} className="grid sm:grid-cols-2 gap-3 max-w-2xl text-sm">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Full name</label>
+                      <input name="name" required minLength={2} className="w-full border rounded-md p-2.5" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Email</label>
+                      <input name="email" type="email" required className="w-full border rounded-md p-2.5" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Temporary password</label>
+                      <input name="password" type="password" required minLength={8} className="w-full border rounded-md p-2.5" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 block mb-1">Role</label>
+                      <select name="role" className="w-full border rounded-md p-2.5" required defaultValue="">
+                        <option value="" disabled>
+                          Select…
                         </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Course</label>
-                    <select name="courseId" className="border rounded-md px-2 py-2 min-w-[240px]" required defaultValue="">
-                      <option value="" disabled>
-                        Select course
-                      </option>
-                      {courses.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.code} — {c.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <button type="submit" className="bg-secondary text-primary font-bold px-5 py-2 rounded-md hover:brightness-95">
-                    Enroll
-                  </button>
-                </form>
-              </section>
+                        <option value="STUDENT">Student</option>
+                        <option value="LECTURER">Lecturer</option>
+                      </select>
+                    </div>
+                    <button type="submit" className="sm:col-span-2 bg-primary text-white font-bold py-2.5 rounded-md hover:opacity-90">
+                      Create account
+                    </button>
+                  </form>
+                </section>
+              ) : null}
 
-              <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 className="font-semibold text-primary mb-4">Active enrollments</h3>
-                <div className="overflow-x-auto border border-gray-100 rounded-lg max-h-[340px] overflow-y-auto">
-                  <table className="w-full text-xs">
-                    <thead className="bg-gray-50 sticky top-0 text-left uppercase text-gray-500">
-                      <tr>
-                        <th className="px-2 py-2">Student</th>
-                        <th className="px-2 py-2">Course</th>
-                        <th className="px-2 py-2" />
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {enrollments.length === 0 ? (
-                        <tr>
-                          <td colSpan={3} className="px-2 py-4 text-center text-gray-500">
-                            No enrollments yet.
-                          </td>
-                        </tr>
-                      ) : (
-                        enrollments.map((en) => (
-                          <tr key={en.id}>
-                            <td className="px-2 py-1.5">
-                              <div className="font-medium text-gray-800">{en.user.name}</div>
-                              <div className="text-gray-500">{en.user.email}</div>
-                            </td>
-                            <td className="px-2 py-1.5">
-                              {en.course.code} — {en.course.title}
-                            </td>
-                            <td className="px-2 py-1.5 text-right">
-                              <button
-                                type="button"
-                                onClick={() => drop(en.user.id, en.course.id)}
-                                className="text-red-600 font-semibold hover:underline"
-                              >
-                                Remove
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
+              {!allow(P.USERS_VIEW) && !allow(P.USERS_MANAGE) && (
+                <p className="text-sm text-gray-600 border border-dashed rounded-xl p-4">
+                  Directory-only staff may view users through the Directory tab rather than provisioning here.
+                </p>
+              )}
+
             </div>
           )}
 
           {section === 'directory' && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-bold text-primary text-xl">Account directory</h2>
-                <p className="text-sm text-gray-600 mt-1">All users in the system (read-only).</p>
+                <h2 className="font-bold text-primary text-xl">Campus-wide directory</h2>
+                <p className="text-sm text-gray-600 mt-1">Filtered by RBAC scopes — identities stay isolated per GDPR-style policy.</p>
               </div>
               <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
                 <div className="overflow-x-auto border border-gray-100 rounded-lg max-h-[min(60vh,520px)] overflow-y-auto">
@@ -412,7 +401,7 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
                           <td className="px-2 py-1.5">
                             <span
                               className={`rounded-full px-2 py-0.5 font-semibold ${
-                                u.role === 'ADMIN'
+                                MANAGEMENT_ROLE_SLUGS.has(u.role)
                                   ? 'bg-purple-100 text-purple-900'
                                   : u.role === 'LECTURER'
                                     ? 'bg-sky-100 text-sky-900'
@@ -432,49 +421,113 @@ export default function AdminDashboard({ users, courses, enrollments = [] }) {
           )}
 
           {section === 'admissions' && (
-            <div className="space-y-6">
-              <EcosystemPlaceholder
-                title="Admissions orchestration"
-                description="Interview scheduling, document intake, evaluator notes, conditional offers, and automated acknowledgement packs—wired to SSO with tamper-evident logs."
-              />
-              <Link href="/admissions" className="inline-flex text-sm font-bold text-blue-700 hover:underline">
-                Open public admissions funnel →
-              </Link>
-            </div>
+            <AdmissionManagementWorkspace
+              viewer={viewer}
+              permissionKeys={permissionKeys}
+            />
           )}
 
           {section === 'finance' && (
             <EcosystemPlaceholder
               title="Finance & cashiering"
-              description="Stripe, Flutterwave, PayPal plus MTN and Airtel Money share one treasury ledger—payments unlock LMS access instantly after reconciliation."
+              description={`Ledger visibility: ${allow(P.FINANCE_MANAGE) ? 'Operational controls enabled.' : 'Read-only treasury snapshot.'}`}
             />
           )}
 
           {section === 'departments' && (
             <EcosystemPlaceholder
               title="Departments"
-              description="Workload planning, adjunct onboarding, departmental QA, budgeting, and delegated approvals—all synchronized with course graphs."
+              description="Workload planning and delegated approvals synced with departmental RBAC checkpoints."
             />
+          )}
+
+          {section === 'programs' && (
+            <EcosystemPlaceholder title="Programs" description="Approve degree structures and align curriculum governance." />
+          )}
+
+          {section === 'certificates' && (
+            <EcosystemPlaceholder title="Certificates issuance" description="Controlled flows for attestations tied to registrar sign-off rails." />
+          )}
+
+          {section === 'timetable' && (
+            <EcosystemPlaceholder title="Master timetable" description="Conflict detection, venues, hybrids, registrar locks." />
           )}
 
           {section === 'reports' && (
             <EcosystemPlaceholder
               title="Reports"
-              description="Council-ready attainment packs, finance burn charts, enrolment pacing, cohort risk modelling, and engagement analytics."
+              description="Council-ready attainment packs gated by institutional analytics roles."
             />
           )}
 
           {section === 'cms' && (
+            <EcosystemPlaceholder title="Website CMS" description="Headless editorial + compliance previews for MUoT outward presence." />
+          )}
+
+          {section === 'notifications' && (
+            <EcosystemPlaceholder title="Enterprise notifications" description="Audience segmentation respecting privacy boundaries." />
+          )}
+
+          {section === 'audit' && (
+            <div className="space-y-4">
+              <div>
+                <h2 className="font-bold text-primary text-xl">Audit trail</h2>
+                <p className="text-sm text-gray-600 mt-1">Immutable instrumentation for SOC-style reviews.</p>
+              </div>
+              {auditLoading ? (
+                <p className="text-sm text-gray-500">Loading events…</p>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm max-h-[440px] overflow-y-auto">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50 sticky top-0 text-left uppercase text-gray-500">
+                      <tr>
+                        <th className="px-2 py-2">When</th>
+                        <th className="px-2 py-2">Action</th>
+                        <th className="px-2 py-2">Actor</th>
+                        <th className="px-2 py-2">Resource</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {auditLogs.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-2 py-4 text-gray-500 text-center">
+                            No audit entries yet — successful logins and admin mutations appear here automatically.
+                          </td>
+                        </tr>
+                      ) : (
+                        auditLogs.map((row) => (
+                          <tr key={row.id}>
+                            <td className="px-2 py-1.5 whitespace-nowrap text-gray-700">
+                              {new Date(row.createdAt).toLocaleString()}
+                            </td>
+                            <td className="px-2 py-1.5 font-semibold text-primary">{row.action}</td>
+                            <td className="px-2 py-1.5">
+                              {row.actor ? `${row.actor.name}` : <span className="text-gray-400">Anonymous</span>}
+                              <div className="text-gray-500">{row.actor?.email ?? '—'}</div>
+                            </td>
+                            <td className="px-2 py-1.5 text-gray-600">{row.resource}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {section === 'rbac' && (
             <EcosystemPlaceholder
-              title="Website CMS"
-              description="Headless editorial tooling for News, QA microsites, and campaign launches—released through previews that obey the Magwi design system tokens."
+              title="RBAC authoring"
+              description="Role-to-permutation editing, segregation-of-duty templates, impersonation safeguards—elevated SUPER_ADMIN tooling lands here shortly."
+              footnote="Today: permissions live in prisma/rbac-matrix.cjs synced through seed migrations."
             />
           )}
 
           {section === 'settings' && (
             <EcosystemPlaceholder
               title="Institutional settings"
-              description="SMTP/SMS gateways, SSO federation metadata, MFA policy, webhook secrets, and audit streaming—backing the hardened JWT + cookie perimeter you use today."
+              description="SMTP/SMS, SSO federation, MFA posture, integrations—blocked behind system.settings.manage scopes."
             />
           )}
         </div>
