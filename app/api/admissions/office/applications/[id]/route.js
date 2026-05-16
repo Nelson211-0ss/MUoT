@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma'
 import { serializeApplication } from '@/lib/admissions/application-serialize'
 import { forbidUnlessAny, getAdmissionOfficeCtx } from '@/lib/admissions/office-guard'
 import { ADMISSION_STATUS } from '@/lib/admissions/constants'
+import { notifyApplicantAdmittedOutbound } from '@/lib/admissions/email-notify'
 import { appendTimeline, notifyApplicant } from '@/lib/admissions/lifecycle'
 import { P } from '@/lib/rbac/constants'
 
@@ -68,7 +69,9 @@ const PatchBody = z.discriminatedUnion('action', [
 ])
 
 function canTransition(curr, incoming) {
-  if (incoming === 'PROVISIONAL_ACCEPT') return curr === ADMISSION_STATUS.UNDER_REVIEW
+  if (incoming === 'PROVISIONAL_ACCEPT') {
+    return curr === ADMISSION_STATUS.UNDER_REVIEW || curr === ADMISSION_STATUS.SUBMITTED
+  }
 
   if (curr === ADMISSION_STATUS.DRAFT) return false
   if (
@@ -155,6 +158,11 @@ export async function PATCH(request, { params }) {
         'Congratulations! Admissions has cleared you for provisional placement. Submit your acceptance fee inside the Applicant Payments tab.',
         { applicationId: id },
       )
+      void notifyApplicantAdmittedOutbound({
+        email: app.applicant.email,
+        fullName: app.fullName ?? app.applicant.name,
+        programName: app.admissionProgram?.name ?? null,
+      })
     } else {
       /** @type {string} */
       const target = body.status

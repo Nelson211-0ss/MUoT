@@ -107,6 +107,15 @@ export async function POST(request) {
     })
   } catch (e) {
     console.error(e)
+    if (e?.code === 'P2022') {
+      return NextResponse.json(
+        {
+          error:
+            'Database schema is out of date. Run npm run db:push; if SQLite still has legacy Course/Assignment tables Prisma asks to drop, run: npx prisma db push --accept-data-loss — then optionally npm run db:seed for demo accounts.',
+        },
+        { status: 503 },
+      )
+    }
     return NextResponse.json({ error: 'Login failed' }, { status: 500 })
   }
 }

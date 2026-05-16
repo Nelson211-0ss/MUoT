@@ -5,7 +5,7 @@ import MoodleHubCallout from '@/components/MoodleHubCallout'
 export const metadata = {
   title: 'Moodle LMS | Magwi University of Technology',
   description:
-    'Access the institutional Moodle workspace for lessons, quizzes, assignments, forums, grades, and course resources.',
+    'Access the institutional Moodle platform for lessons, quizzes, assignments, forums, grades, and course resources.',
 }
 
 export default function MoodleLauncherPage() {

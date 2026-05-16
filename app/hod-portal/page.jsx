@@ -1,6 +1,5 @@
-import PageLayout from '@/components/PageLayout'
 import prisma from '@/lib/prisma'
-import HodWorkspaceClient from '@/components/portals/HodWorkspaceClient'
+import HodPortalShell from '@/components/portals/HodPortalShell'
 
 export default async function HodPortalPage() {
   const programs = await prisma.admissionProgram.findMany({
@@ -8,15 +7,5 @@ export default async function HodPortalPage() {
     orderBy: { code: 'asc' },
   })
 
-  return (
-    <PageLayout
-      title="Head of department"
-      subtitle="Define programme course units before recording semester marks."
-      showBanner={false}
-      showCta={false}
-      showFooter={false}
-    >
-      <HodWorkspaceClient programs={programs} />
-    </PageLayout>
-  )
+  return <HodPortalShell programs={programs} />
 }

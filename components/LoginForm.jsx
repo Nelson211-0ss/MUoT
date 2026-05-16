@@ -1,10 +1,27 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import {
+  ClipboardList,
+  GraduationCap,
+  Lock,
+  Mail,
+  Phone,
+  Shield,
+  UserCircle,
+  UserRound,
+} from 'lucide-react'
 
 import { isHoDRoleSlug, isManagementRoleSlug } from '@/lib/rbac/constants'
+
+const INTENT_HEADER = {
+  student: { Icon: GraduationCap, eyebrow: 'Student sign-in' },
+  hod: { Icon: ClipboardList, eyebrow: 'Department head sign-in' },
+  admin: { Icon: Shield, eyebrow: 'Management sign-in' },
+  applicant: { Icon: UserCircle, eyebrow: 'Applicant' },
+}
 
 export default function LoginForm() {
   const router = useRouter()
@@ -15,17 +32,28 @@ export default function LoginForm() {
 
   const intent = (searchParams.get('intent') ?? '').trim().toLowerCase()
   const applicantIntent = intent === 'applicant'
+  const applicantRegister = applicantIntent && (searchParams.get('register') ?? '') === '1'
 
   const subtitle = useMemo(() => {
-    if (intent === 'lecturer') return 'Faculty workspaces use ICT / HR directory credentials.'
     if (intent === 'hod')
       return 'Heads of department shape degree modules and certify semester transcripts before LMS delivery syncs externally.'
     if (intent === 'admin') return 'System administrators authenticate for staffing, curricula, admissions, finance, CMS hooks.'
     if (intent === 'student')
-      return 'Registrar-issued learner numbers are 10 digits. First login repeats that number once for both fields, then portal forces a bespoke password.'
-    if (applicantIntent) return 'Prospective undergraduates onboard an APPLICANT JWT for dossiers, OTP email proof, uploads and tuition intents.'
+      return 'Use your 10-digit learner number and password. First time: use that number as both username and password, then choose a permanent password.'
+    if (applicantIntent && applicantRegister)
+      return 'Step 1: create your MUoT applicant account (registration is mandatory before submitting an application). Step 2: you are taken straight into the online application wizard.'
+    if (applicantIntent)
+      return 'Sign in with the email and password you used at registration — continue your application or admission dossier.'
     return ''
-  }, [intent, applicantIntent])
+  }, [intent, applicantIntent, applicantRegister])
+
+  useEffect(() => {
+    if (!applicantIntent) {
+      setMode('login')
+      return
+    }
+    setMode(applicantRegister ? 'register' : 'login')
+  }, [applicantIntent, applicantRegister])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -46,18 +74,24 @@ export default function LoginForm() {
         return
       }
 
+      if (!applicantIntent) {
+        setStatus({
+          type: 'error',
+          message: 'Learner accounts cannot be registered here—they are assigned by administrators after admission.',
+        })
+        return
+      }
+
       const name = String(form.name?.value ?? '').trim()
       if (!name || name.length < 2) {
         setStatus({ type: 'error', message: 'Please enter your full name.' })
         return
       }
 
-      if (applicantIntent) {
-        const phone = String(form.phone?.value ?? '').trim()
-        if (!phone || phone.length < 8) {
-          setStatus({ type: 'error', message: 'Provide a reachable phone line for Admissions callbacks.' })
-          return
-        }
+      const phone = String(form.phone?.value ?? '').trim()
+      if (!phone || phone.length < 8) {
+        setStatus({ type: 'error', message: 'Provide a reachable phone line for Admissions callbacks.' })
+        return
       }
     }
 
@@ -70,20 +104,13 @@ export default function LoginForm() {
       if (mode === 'login') {
         const identifier = String(form.identifier?.value ?? '').trim()
         body = { identifier, password }
-      } else if (applicantIntent) {
+      } else {
         endpoint = '/api/admissions/register'
         body = {
           email: String(form.email?.value ?? '').trim(),
           password,
           name: String(form.name.value).trim(),
           phone: String(form.phone.value).trim(),
-        }
-      } else {
-        endpoint = '/api/auth/register'
-        body = {
-          email: String(form.email?.value ?? '').trim(),
-          password,
-          name: String(form.name.value).trim(),
         }
       }
 
@@ -157,156 +184,169 @@ export default function LoginForm() {
     }
   }
 
-  const showStudentRegisterShell = mode === 'register' && !applicantIntent
+  const intentKey = INTENT_HEADER[intent] ? intent : null
+  const IntentHeaderVisual = intentKey ? INTENT_HEADER[intentKey]?.Icon : null
+
+  const field =
+    'w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 py-3 text-[15px] text-gray-900 outline-none transition-[border-color,box-shadow] placeholder:text-gray-400 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/15 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500'
+
+  const iconLeft =
+    'pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-400 shrink-0'
 
   return (
-    <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-xl p-8 md:p-10 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-white/10">
-      <div className="flex rounded-lg bg-gray-100 dark:bg-slate-800 p-1 mb-6">
-        <button
-          type="button"
-          onClick={() => {
-            setMode('login')
-            setStatus(null)
-          }}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
-            mode === 'login' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-gray-600 dark:text-slate-400'
-          }`}
-        >
-          Login
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setMode('register')
-            setStatus(null)
-          }}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
-            mode === 'register'
-              ? 'bg-white dark:bg-slate-900 text-primary shadow-sm'
-              : 'text-gray-600 dark:text-slate-400'
-          }`}
-        >
-          Register
-        </button>
-      </div>
+    <div className="w-full max-w-[420px] mx-auto">
+      <div className="rounded-2xl border border-gray-200/90 bg-white/95 backdrop-blur-sm px-7 py-9 sm:p-10 shadow-[0_24px_64px_-28px_rgba(15,23,42,0.22)]">
+        <h1 className="text-2xl sm:text-[1.65rem] font-semibold tracking-tight text-gray-900 text-center text-balance leading-snug">
+          {applicantIntent && mode === 'register'
+            ? 'Admissions registration'
+            : mode === 'login'
+              ? 'Sign in'
+              : 'Admissions registration'}
+        </h1>
 
-      <h2 className="text-xl font-bold text-primary dark:text-secondary mb-2 text-center">
-        {applicantIntent && mode === 'register'
-          ? 'Create your admissions account'
-          : mode === 'login'
-            ? 'Sign in securely'
-            : 'Create learner account'}
-      </h2>
+        {(mode === 'login' || (applicantIntent && mode === 'register')) && intentKey && IntentHeaderVisual ? (
+          <div className="flex flex-col items-center gap-2 mt-8 mb-1">
+            <span className="flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-2xl bg-primary/[0.09] text-primary ring-1 ring-primary/10">
+              <IntentHeaderVisual className="h-7 w-7" strokeWidth={1.6} aria-hidden />
+            </span>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{INTENT_HEADER[intentKey].eyebrow}</p>
+          </div>
+        ) : null}
 
-      {mode === 'login' && intent ? (
-        <p className="text-xs text-center text-gray-500 dark:text-slate-400 mb-6 leading-relaxed px-2">{subtitle}</p>
-      ) : null}
+        {mode === 'login' && subtitle ? (
+          <p
+            className={`text-sm text-center text-gray-500 mb-8 leading-relaxed max-w-[20rem] mx-auto ${intentKey ? 'mt-3' : 'mt-5'}`}
+          >
+            {subtitle}
+          </p>
+        ) : mode === 'login' ? (
+          <div className="mb-8 mt-2" aria-hidden />
+        ) : null}
 
-      {status && (
-        <p
-          className={`text-sm rounded-md px-3 py-2 mb-4 ${
-            status.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-100'
-              : 'bg-red-50 text-red-800 dark:bg-red-500/15 dark:text-red-100'
-          }`}
-        >
-          {status.message}
+        {status ? (
+          <p
+            className={`text-sm rounded-xl px-4 py-3 mb-6 ${
+              status.type === 'success' ? 'bg-emerald-50 text-emerald-900 border border-emerald-100' : 'bg-red-50 text-red-900 border border-red-100'
+            }`}
+            role={status.type === 'error' ? 'alert' : undefined}
+          >
+            {status.message}
+          </p>
+        ) : null}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' ? (
+            <div className="relative">
+              <UserRound className={iconLeft} strokeWidth={1.75} aria-hidden />
+              <input
+                name="name"
+                type="text"
+                placeholder={applicantIntent ? 'Full legal name (as on ID)' : 'Full name'}
+                className={field}
+                disabled={pending}
+                required
+              />
+            </div>
+          ) : null}
+          {mode === 'register' && applicantIntent ? (
+            <div className="relative">
+              <Phone className={iconLeft} strokeWidth={1.75} aria-hidden />
+              <input
+                name="phone"
+                type="tel"
+                placeholder="Phone (+SS / international)"
+                className={field}
+                disabled={pending}
+                required
+              />
+            </div>
+          ) : null}
+          {mode === 'login' ? (
+            <div className="relative">
+              <UserRound className={iconLeft} strokeWidth={1.75} aria-hidden />
+              <input
+                name="identifier"
+                type="text"
+                inputMode={intent === 'student' ? 'numeric' : 'email'}
+                autoComplete="username"
+                placeholder={
+                  intent === 'student'
+                    ? 'Student number or email'
+                    : applicantIntent
+                      ? 'Applicant email'
+                      : 'Email address'
+                }
+                required
+                className={field}
+                disabled={pending}
+              />
+            </div>
+          ) : (
+            <div className="relative">
+              <Mail className={iconLeft} strokeWidth={1.75} aria-hidden />
+              <input name="email" type="email" placeholder="Email" required className={field} disabled={pending} />
+            </div>
+          )}
+          <div className="relative">
+            <Lock className={iconLeft} strokeWidth={1.75} aria-hidden />
+            <input
+              name="password"
+              type="password"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              placeholder={mode === 'register' ? 'Password (at least 8 characters)' : 'Password'}
+              className={field}
+              disabled={pending}
+              minLength={mode === 'register' ? 8 : undefined}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full rounded-xl bg-primary text-white py-3.5 text-[15px] font-semibold shadow-sm shadow-primary/25 hover:opacity-[0.97] active:opacity-95 transition-opacity disabled:opacity-50 disabled:shadow-none mt-2"
+          >
+            {pending ? 'Please wait…' : mode === 'login' ? 'Continue' : 'Create account'}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-gray-500 mt-8 leading-relaxed">
+          {applicantIntent ? (
+            mode === 'login' ? (
+              <>
+                Need an admissions account?{' '}
+                <Link href="/login?intent=applicant&register=1" prefetch={false} className="font-semibold text-primary hover:underline underline-offset-4">
+                  Register here
+                </Link>
+              </>
+            ) : (
+              <>
+                Already registered?{' '}
+                <Link href="/login?intent=applicant" prefetch={false} className="font-semibold text-primary hover:underline underline-offset-4">
+                  Sign in
+                </Link>
+              </>
+            )
+          ) : mode === 'login' ? (
+            <>
+              Applying as a new applicant?{' '}
+              <Link href="/admissions/apply" className="font-semibold text-primary hover:underline underline-offset-4">
+                Start at admissions apply
+              </Link>
+            </>
+          ) : (
+            <>
+              Already registered?{' '}
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className="font-semibold text-primary hover:underline underline-offset-4"
+              >
+                Sign in
+              </button>
+            </>
+          )}
         </p>
-      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {mode === 'register' ? (
-          <input
-            name="name"
-            type="text"
-            placeholder={applicantIntent ? 'Full legal name (as on ID)' : 'Full name'}
-            className="w-full border border-gray-200 dark:border-white/10 p-3.5 rounded-md text-sm bg-white dark:bg-slate-950 focus:outline-none focus:border-primary"
-            disabled={pending}
-            required
-          />
-        ) : null}
-        {mode === 'register' && applicantIntent ? (
-          <input
-            name="phone"
-            type="tel"
-            placeholder="Phone (+SS / international)"
-            className="w-full border border-gray-200 dark:border-white/10 p-3.5 rounded-md text-sm bg-white dark:bg-slate-950 focus:outline-none focus:border-primary"
-            disabled={pending}
-            required
-          />
-        ) : null}
-        {mode === 'login' ? (
-          <input
-            name="identifier"
-            type="text"
-            inputMode={intent === 'student' ? 'numeric' : 'email'}
-            autoComplete="username"
-            placeholder={
-              intent === 'student'
-                ? '10-digit student number or university email'
-                : applicantIntent
-                  ? 'Applicant email'
-                  : 'Email address'
-            }
-            required
-            className="w-full border border-gray-200 dark:border-white/10 p-3.5 rounded-md text-sm bg-white dark:bg-slate-950 focus:outline-none focus:border-primary"
-            disabled={pending}
-          />
-        ) : (
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            required
-            className="w-full border border-gray-200 dark:border-white/10 p-3.5 rounded-md text-sm bg-white dark:bg-slate-950 focus:outline-none focus:border-primary"
-            disabled={pending}
-          />
-        )}
-        <input
-          name="password"
-          type="password"
-          placeholder={applicantIntent && mode === 'register' ? 'Password (≥8 chars)' : 'Password (≥6 chars)'}
-          className="w-full border border-gray-200 dark:border-white/10 p-3.5 rounded-md text-sm bg-white dark:bg-slate-950 focus:outline-none focus:border-primary"
-          disabled={pending}
-          minLength={applicantIntent && mode === 'register' ? 8 : mode === 'register' ? 6 : undefined}
-        />
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full bg-primary text-white py-3.5 rounded-md font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
-        >
-          {pending ? 'Please wait…' : mode === 'login' ? 'Login' : applicantIntent ? 'Create applicant account' : 'Create learner account'}
-        </button>
-      </form>
-
-      <p className="text-center text-sm text-gray-500 mt-6">
-        {mode === 'login' ? (
-          <>
-            Applying to MUT?{' '}
-            <Link href="/login?intent=applicant&next=/applicant-portal/application" className="text-blue-600 dark:text-secondary font-semibold">
-              Admissions login
-            </Link>
-          </>
-        ) : showStudentRegisterShell ? (
-          <>
-            Already onboarded?{' '}
-            <button type="button" onClick={() => setMode('login')} className="text-blue-600 dark:text-secondary font-semibold">
-              Login
-            </button>
-          </>
-        ) : (
-          <>
-            Have an account already?{' '}
-            <button type="button" onClick={() => setMode('login')} className="text-blue-600 dark:text-secondary font-semibold">
-              Login
-            </button>
-          </>
-        )}
-      </p>
-
-      {!applicantIntent || mode !== 'login' ? null : (
-        <p className="mt-6 text-[11px] text-center leading-relaxed text-gray-500">{subtitle}</p>
-      )}
+      </div>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { hashPassword } from '@/lib/auth'
-import { getManagementSessionOrError, ROLES } from '@/lib/adminAuth'
+import { getManagementSessionOrError, isSystemAdministratorRole, ROLES } from '@/lib/adminAuth'
 import { P } from '@/lib/rbac/constants'
 import { writeAuditLog } from '@/lib/audit'
 
@@ -27,6 +27,13 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid input', details: parsed.error.flatten() }, { status: 400 })
     }
     const { email, name, password, role } = parsed.data
+
+    if (role === ROLES.STUDENT && !isSystemAdministratorRole(admin.role)) {
+      return NextResponse.json(
+        { error: 'Only system administrators may create learner (student) accounts.' },
+        { status: 403 },
+      )
+    }
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } })
     if (existing) {
@@ -68,15 +75,28 @@ export async function POST(request) {
   }
 }
 
-export async function GET(request) {
+export async function GET() {
   const { response, permissionKeys } = await getManagementSessionOrError()
   if (response) return response
-  if (!permissionKeys.includes(P.USERS_VIEW) && !permissionKeys.includes(P.USERS_MANAGE)) {
+  const canFullUserDirectory =
+    permissionKeys.includes(P.USERS_VIEW) || permissionKeys.includes(P.USERS_MANAGE)
+  const studentRosterScopeOnly =
+    permissionKeys.includes(P.STUDENTS_REGISTRY_VIEW) && !canFullUserDirectory
+
+  if (!canFullUserDirectory && !studentRosterScopeOnly) {
     return NextResponse.json({ error: 'Forbidden — insufficient directory scope' }, { status: 403 })
   }
 
   const users = await prisma.user.findMany({
-    select: { id: true, email: true, name: true, role: true, createdAt: true },
+    where: studentRosterScopeOnly ? { role: 'STUDENT' } : {},
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      studentLoginNumber: true,
+      createdAt: true,
+    },
     orderBy: { email: 'asc' },
   })
   return NextResponse.json({ users })

@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import PageLayout from '@/components/PageLayout'
 import { getSessionFromCookies } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { Suspense } from 'react'
@@ -33,16 +32,8 @@ export default async function LecturerPortalPage() {
   const permissionKeys = await getUserPermissionKeys(user.id)
 
   return (
-    <PageLayout
-      title="Lecturer portal"
-      subtitle="Teaching workflows live in Moodle — this desk is for campus identity and light reporting."
-      showBanner={false}
-      showCta={false}
-      showFooter={false}
-    >
-      <Suspense fallback={<p className="text-sm text-gray-500 px-2">Loading faculty workspace…</p>}>
-        <LecturerPortalShell faculty={{ name: user.name, email: user.email }} permissionKeys={permissionKeys} />
-      </Suspense>
-    </PageLayout>
+    <Suspense fallback={<div className="flex min-h-dvh items-center justify-center bg-slate-50"><p className="text-sm text-slate-500">Loading portal…</p></div>}>
+      <LecturerPortalShell faculty={{ name: user.name, email: user.email }} permissionKeys={permissionKeys} />
+    </Suspense>
   )
 }

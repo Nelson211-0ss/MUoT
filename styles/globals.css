@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/*
+ * Prefer OS dark mode for the public site, but keep dashboard routes in a fixed light chrome
+ * (see PortalDeskShell / desks that set data-portal-scope="light").
+ */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:not(:where([data-portal-scope='light'], [data-portal-scope='light'] *)) {
+      @slot;
+    }
+  }
+}
+
 @theme {
   --color-primary: #071c4d;
   --color-secondary: #f5b700;

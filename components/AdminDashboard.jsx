@@ -10,6 +10,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   GraduationCap,
+  School,
   CreditCard,
   Building2,
   PieChart,
@@ -26,8 +27,7 @@ import {
 
 import EcosystemPlaceholder from '@/components/portals/EcosystemPlaceholder'
 import AdmissionManagementWorkspace from '@/components/admissions/AdmissionManagementWorkspace'
-import { MANAGEMENT_ROLE_SLUGS } from '@/lib/rbac/constants'
-import { P } from '@/lib/rbac/constants'
+import { MANAGEMENT_ROLE_SLUGS, P, normalizeRoleSlug } from '@/lib/rbac/constants'
 
 const SECTION_DEFS = [
   {
@@ -41,6 +41,12 @@ const SECTION_DEFS = [
     label: 'Users & staffing',
     icon: UsersRound,
     requireAny: [P.USERS_VIEW, P.USERS_MANAGE],
+  },
+  {
+    id: 'students',
+    label: 'Student roster',
+    icon: School,
+    requireAny: [P.STUDENTS_REGISTRY_VIEW],
   },
   {
     id: 'directory',
@@ -144,6 +150,8 @@ export default function AdminDashboard({
   const lecturers = users.filter((u) => u.role === 'LECTURER')
   const students = users.filter((u) => u.role === 'STUDENT')
   const staffCount = users.filter((u) => MANAGEMENT_ROLE_SLUGS.has(u.role)).length
+  const canProvisionStudentPersonas =
+    normalizeRoleSlug(viewerRole) === 'ADMIN' || normalizeRoleSlug(viewerRole) === 'SUPER_ADMIN'
 
   const allow = (...keys) => keys.some((k) => permissionKeys.includes(k))
 
@@ -200,14 +208,14 @@ export default function AdminDashboard({
 
 
   return (
-    <div className="flex flex-col lg:flex-row gap-0 rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[min(70vh,900px)]">
-      <div className="lg:hidden border-b border-gray-200 bg-slate-50 p-3">
+    <div className="flex min-h-[min(72vh,calc(100dvh-5.5rem))] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm lg:flex-row">
+      <div className="border-b border-slate-200 bg-white p-3 lg:hidden">
         <label className="sr-only" htmlFor="admin-section-mobile">
           Management section
         </label>
         <select
           id="admin-section-mobile"
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-800 bg-white"
+          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800"
           value={sections.some((s) => s.id === section) ? section : sections[0]?.id}
           onChange={(e) => setSection(e.target.value)}
         >
@@ -222,18 +230,18 @@ export default function AdminDashboard({
       <aside
         className={`${
           sidebarOpen ? 'lg:w-60 xl:w-64' : 'lg:w-[4.25rem]'
-        } shrink-0 bg-primary text-white flex flex-col transition-[width] duration-200 ease-out`}
+        } hidden shrink-0 flex-col border-slate-200 bg-white transition-[width] duration-200 ease-out lg:flex lg:border-r`}
       >
-        <div className="hidden lg:flex items-center justify-between gap-2 px-3 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-3">
           {sidebarOpen ? (
-            <p className="text-xs font-bold uppercase tracking-wider text-white/90 pl-1">Operations</p>
+            <p className="pl-1 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500">Sections</p>
           ) : (
             <span className="sr-only">Management menu</span>
           )}
           <button
             type="button"
             onClick={() => setSidebarOpen((o) => !o)}
-            className="p-2 rounded-lg text-white/90 hover:bg-white/10 transition-colors"
+            className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100"
             aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             {sidebarOpen ? (
@@ -244,7 +252,7 @@ export default function AdminDashboard({
           </button>
         </div>
 
-        <nav className="hidden lg:flex flex-col gap-1 p-2 flex-1 overflow-y-auto max-h-[70vh]">
+        <nav className="flex max-h-[min(70vh,44rem)] flex-1 flex-col gap-1 overflow-y-auto p-2">
           {sections.map((s) => {
             const Icon = s.icon
             const active = section === s.id
@@ -255,10 +263,10 @@ export default function AdminDashboard({
                 onClick={() => setSection(s.id)}
                 title={!sidebarOpen ? s.label : undefined}
                 className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
-                  active ? 'bg-white text-primary shadow-sm' : 'text-white/85 hover:bg-white/10'
+                  active ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <Icon className="w-5 h-5 shrink-0" strokeWidth={1.75} aria-hidden />
+                <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} aria-hidden />
                 {sidebarOpen ? <span className="truncate">{s.label}</span> : null}
               </button>
             )
@@ -266,7 +274,7 @@ export default function AdminDashboard({
         </nav>
       </aside>
 
-      <div className="flex-1 min-w-0 bg-slate-50/80">
+      <div className="min-w-0 flex-1 bg-slate-50/90">
         <div className="p-5 sm:p-8 max-w-4xl mx-auto space-y-8">
           <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center gap-3 text-xs text-gray-700">
             <Shield className="w-4 h-4 text-primary shrink-0" strokeWidth={1.75} />
@@ -337,7 +345,19 @@ export default function AdminDashboard({
 
               {allow(P.USERS_MANAGE) ? (
                 <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                  <h3 className="font-semibold text-primary mb-4">Create user (student or lecturer)</h3>
+                  <h3 className="font-semibold text-primary mb-4">Create user account</h3>
+                  <p className="text-xs text-gray-600 mb-4">
+                    Lecturer placeholders can flow from HR onboarding.{' '}
+                    {!canProvisionStudentPersonas ? (
+                      <span className="font-semibold text-gray-800">
+                        Only System Administrators (ADMIN or SUPER_ADMIN) may synthesise STUDENT SSO rows.
+                      </span>
+                    ) : (
+                      <span className="font-semibold text-gray-800">
+                        STUDENT personas require registrar alignment—prefer issuing login numbers from Admissions issuance.
+                      </span>
+                    )}
+                  </p>
                   <form onSubmit={createUser} className="grid sm:grid-cols-2 gap-3 max-w-2xl text-sm">
                     <div>
                       <label className="text-xs font-medium text-gray-500 block mb-1">Full name</label>
@@ -357,7 +377,7 @@ export default function AdminDashboard({
                         <option value="" disabled>
                           Select…
                         </option>
-                        <option value="STUDENT">Student</option>
+                        {canProvisionStudentPersonas ? <option value="STUDENT">Student</option> : null}
                         <option value="LECTURER">Lecturer</option>
                       </select>
                     </div>
@@ -374,6 +394,49 @@ export default function AdminDashboard({
                 </p>
               )}
 
+            </div>
+          )}
+
+          {section === 'students' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="font-bold text-primary text-xl">Enrolled learners</h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Registrar view of STUDENT SSO accounts issued after enrollment · no staff or applicant rows.
+                </p>
+              </div>
+              <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="max-h-[min(60vh,520px)] overflow-x-auto overflow-y-auto rounded-lg border border-gray-100">
+                  <table className="w-full text-xs">
+                    <thead className="sticky top-0 bg-gray-50 text-left uppercase text-gray-500">
+                      <tr>
+                        <th className="px-2 py-2">Learner login</th>
+                        <th className="px-2 py-2">Email</th>
+                        <th className="px-2 py-2">Name</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {students.length === 0 ? (
+                        <tr>
+                          <td className="px-2 py-4 text-center text-gray-500" colSpan={3}>
+                            No student records synced yet · complete enrollments from Admissions HQ.
+                          </td>
+                        </tr>
+                      ) : (
+                        students.map((u) => (
+                          <tr key={u.id}>
+                            <td className="px-2 py-1.5 font-mono text-[11px] text-gray-800">
+                              {u.studentLoginNumber ?? '—'}
+                            </td>
+                            <td className="px-2 py-1.5 text-gray-800">{u.email}</td>
+                            <td className="px-2 py-1.5">{u.name}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             </div>
           )}
 

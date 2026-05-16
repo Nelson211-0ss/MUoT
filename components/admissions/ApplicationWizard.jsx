@@ -1,8 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import PageLayout from '@/components/PageLayout'
-import ApplicantPortalShell from '@/components/applicant-portal/ApplicantPortalShell'
 
 async function refreshApplication() {
   const res = await fetch('/api/admissions/me/application')
@@ -89,9 +87,7 @@ export default function AdmissionApplicationWizard({ catalog, snapshot }) {
   }
 
   return (
-    <PageLayout title="Admission application" subtitle="Structured intake across guided steps." showCta={false}>
-      <ApplicantPortalShell>
-        <div className="space-y-6">
+    <div className="space-y-6">
           {applicantMode === 'reapply' ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-400/40 dark:bg-amber-500/15 p-4 text-sm font-medium text-primary dark:text-secondary">
               <p>
@@ -184,9 +180,7 @@ export default function AdmissionApplicationWizard({ catalog, snapshot }) {
               ) : null}
             </>
           ) : null}
-        </div>
-      </ApplicantPortalShell>
-    </PageLayout>
+    </div>
   )
 }
 

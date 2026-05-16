@@ -3,7 +3,7 @@ import PageLayout from '@/components/PageLayout'
 import SectionHeader from '@/components/SectionHeader'
 import { CheckCircle } from 'lucide-react'
 
-const pillars = ['Online dossier wizard', 'Document vault integrity', 'RBAC Admissions HQ', 'Automated SSO promotion']
+const pillars = ['Register as an applicant — then dossier wizard', 'Document vault integrity', 'RBAC Admissions HQ', 'Automated SSO promotion']
 
 export default function AdmissionsHubPage() {
   return (
@@ -31,12 +31,12 @@ export default function AdmissionsHubPage() {
         <div className="rounded-[32px] border border-secondary/70 bg-white dark:bg-slate-900 p-10 shadow-xl space-y-5">
           <p className="text-sm uppercase font-bold tracking-widest text-primary dark:text-secondary">Begin here</p>
           <div className="space-y-3 text-sm leading-relaxed text-gray-700 dark:text-slate-300">
-            <p>New applicants provisioning APPLICANT JWT access with secure uploads, OTP-assisted verification, tuition rails, analytics and registrar automation.</p>
+            <p>New applicants register a dedicated account first — then unlock the dossier wizard, secure uploads, and tuition checkpoints.</p>
             <Link
-              href="/login?intent=applicant&next=%2Fapplicant-portal%2Fapplication"
+              href="/admissions/apply"
               className="inline-flex w-full justify-center rounded-2xl bg-secondary text-primary font-bold px-8 py-3 hover:brightness-95"
             >
-              Start / resume application wizard
+              Register — application wizard
             </Link>
             <Link href="/admissions/requirements" className="inline-flex justify-center text-sm font-semibold text-blue-700 dark:text-secondary">
               Explore requirements →

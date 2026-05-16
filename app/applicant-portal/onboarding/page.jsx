@@ -3,9 +3,6 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 
-import PageLayout from '@/components/PageLayout'
-import ApplicantPortalShell from '@/components/applicant-portal/ApplicantPortalShell'
-
 export default function ApplicantOnboardingPage() {
   useEffect(() => {
     ;(async () => {
@@ -18,26 +15,21 @@ export default function ApplicantOnboardingPage() {
   }, [])
 
   return (
-    <PageLayout title="Enrollment onboarding" subtitle="Bridge from Applicant SSO into the Student LMS." showCta={false}>
-      <ApplicantPortalShell>
-        <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-slate-300">
-          <p>
-            Admissions + Finance synced your dossier · reopen the LMS as a STUDENT after signing out and signing back in so
-            the JWT picks up registrar updates.
-          </p>
-          <ol className="list-decimal pl-6 space-y-2">
-            <li>Download your admissions letter preview for records.</li>
-            <li>Finance clearance moves you from applicant JWT to STUDENT SSO.</li>
-            <li>Need help? Contact <span className="font-semibold">admissions@mut.edu</span> (routing stub).</li>
-          </ol>
-          <Link href="/student-portal" prefetch={false} className="inline-flex px-6 py-2 rounded-xl bg-secondary text-primary font-bold">
-            Open Student Portal after signing out/in
-          </Link>
-          <p className="text-xs text-gray-500">
-            Middleware blocks stale cookies — sign out from the Navbar first whenever your role swaps.
-          </p>
-        </div>
-      </ApplicantPortalShell>
-    </PageLayout>
+    <div className="max-w-xl space-y-5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <p>Your dossier is complete. Sign out and sign back in so your session upgrades to STUDENT SSO when the registrar has promoted your account.</p>
+      <ol className="list-decimal space-y-2 pl-6">
+        <li>Download your admissions letter preview if available.</li>
+        <li>Clear finance holds under Payments.</li>
+        <li>Need help? Reach the Admissions desk through your usual MUoT contacts.</li>
+      </ol>
+      <Link
+        href="/student-portal"
+        prefetch={false}
+        className="inline-flex rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-secondary dark:text-primary"
+      >
+        Open student portal (after signing in as student)
+      </Link>
+      <p className="text-xs text-slate-500">Use <strong>Sign out</strong> in the sidebar if your role has changed.</p>
+    </div>
   )
 }

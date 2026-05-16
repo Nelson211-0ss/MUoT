@@ -68,6 +68,7 @@ For **local development only**. Roles and permissions come from **`prisma/seed.j
 | Role | Email | Password |
 | --- | --- | --- |
 | Student | `demo@mut.edu` | `demo123` |
+| HOD | `hod@mut.edu` | `hod123` |
 | Lecturer | `lecturer@mut.edu` | `lecturer123` |
 | Admin | `admin@mut.edu` | `admin123` |
 | Super admin | `super@mut.edu` | `super123` |

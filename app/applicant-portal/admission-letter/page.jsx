@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react'
 
-import PageLayout from '@/components/PageLayout'
-import ApplicantPortalShell from '@/components/applicant-portal/ApplicantPortalShell'
-
 export default function AdmissionLetterPreview() {
   const [app, setApp] = useState(null)
   useEffect(() => {
@@ -18,51 +15,48 @@ export default function AdmissionLetterPreview() {
   const studentNo = app?.studentNumber ?? 'Pending registrar issuance'
 
   return (
-    <PageLayout title="Admission letter" subtitle="Council-template preview — print-ready." showBanner={false} showCta={false}>
-      <ApplicantPortalShell>
-        {!app ? (
-          <p className="text-sm text-gray-500">Fetching records…</p>
-        ) : !allowed ? (
-          <p className="text-sm text-gray-600">
-            Visible after provisional approvals. Present status:&nbsp;<strong>{app.status}</strong>
+    <div className="max-w-3xl">
+      {!app ? (
+        <p className="text-sm text-slate-500">Loading…</p>
+      ) : !allowed ? (
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          Available after provisional decision. Current status:&nbsp;<strong>{app.status}</strong>
+        </p>
+      ) : (
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-8 text-primary shadow-sm print:border-0 print:shadow-none dark:border-white/10 dark:bg-white dark:text-primary">
+          <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Magwi University of Technology</p>
+              <h2 className="mt-2 text-xl font-bold">Provisional letter of acceptance</h2>
+            </div>
+            <p className="font-mono text-xs text-slate-500">{new Date().toLocaleDateString()}</p>
+          </header>
+
+          <p className="text-sm leading-relaxed">
+            Dear <strong>{app.fullName}</strong>,
+            <br />
+            <br />
+            The Admissions Council offers you a provisional place in&nbsp;
+            <strong>{app.program?.name ?? 'your selected programme'}</strong>, cohort <strong>{app.intake?.label ?? 'TBA'}</strong>.
+            Student reference: <strong>{studentNo}</strong>.
           </p>
-        ) : (
-          <div className="print:p-16 border border-gray-100 dark:border-white/10 rounded-3xl shadow-inner bg-white dark:bg-white text-primary p-8 space-y-4">
-            <header className="flex items-center justify-between border-b border-secondary/70 pb-4">
-              <div>
-                <p className="text-xs uppercase font-bold tracking-[0.3em] text-secondary">Magwi University of Technology</p>
-                <h1 className="text-2xl font-black">Provisional letter of acceptance</h1>
-              </div>
-              <p className="text-xs font-mono">{new Date().toLocaleDateString()}</p>
-            </header>
 
-            <p className="text-sm leading-loose font-serif">
-              Dear&nbsp;<strong>{app.fullName}</strong>,
-              <br />
-              <br />
-              The Admissions Council is pleased to offer you a provisional place in the&nbsp;
-              <strong>{app.program?.name ?? 'selected programme'}</strong> commencing{' '}
-              <strong>{app.intake?.label ?? 'forthcoming cohort'}</strong>. Your tentative student dossier references{' '}
-              <strong>{studentNo}</strong>.
-            </p>
+          <ul className="list-disc space-y-1 pl-6 text-sm">
+            <li>Complete acceptance levy under Payments as instructed.</li>
+            <li>Bring original credentials for onboarding.</li>
+          </ul>
 
-            <ul className="text-sm grid gap-2 list-disc ml-6">
-              <li>Acceptance levy instructions appear under Payments · Finance verification unlocks Registrar final IDs.</li>
-              <li>Bring original credentials for onboarding · ICT issues SSO within 72h.</li>
-            </ul>
+          <p className="text-sm italic text-slate-600">Office of Admissions</p>
 
-            <p className="text-sm italic text-gray-600">Signed digitally · Office of Admissions</p>
-
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="print:hidden rounded-xl bg-secondary text-primary px-5 py-2 text-sm font-bold"
-            >
-              Print / PDF
-            </button>
-          </div>
-        )}
-      </ApplicantPortalShell>
-    </PageLayout>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="rounded-xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white print:hidden dark:bg-secondary dark:text-primary"
+          >
+            Print / Save PDF
+          </button>
+        </div>
+      )}
+    </div>
   )
 }

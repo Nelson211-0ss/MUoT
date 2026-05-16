@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from 'react'
 
-import PageLayout from '@/components/PageLayout'
-import ApplicantPortalShell from '@/components/applicant-portal/ApplicantPortalShell'
-
 const GATEWAYS = [
-  { label: 'Simulated cashier', code: 'SIMULATED', note: 'Local smoke test ledger' },
-  { label: 'Stripe', code: 'STRIPE', note: 'Sandbox keys via Finance secret store' },
-  { label: 'Flutterwave', code: 'FLUTTERWAVE', note: 'African aggregator rail' },
-  { label: 'MTN Mobile Money', code: 'MTN_MOMO', note: 'Telco wallets' },
-  { label: 'Airtel Money', code: 'AIRTEL_MONEY', note: 'Operator wallet API' },
+  { label: 'Simulated cashier', code: 'SIMULATED', note: 'Local ledger test' },
+  { label: 'Stripe', code: 'STRIPE', note: 'Sandbox integration' },
+  { label: 'Flutterwave', code: 'FLUTTERWAVE', note: 'Aggregator rail' },
+  { label: 'MTN Mobile Money', code: 'MTN_MOMO', note: 'Telco wallet' },
+  { label: 'Airtel Money', code: 'AIRTEL_MONEY', note: 'Operator wallet' },
 ]
 
 export default function ApplicantPaymentsPage() {
@@ -23,61 +20,53 @@ export default function ApplicantPaymentsPage() {
   }, [])
 
   return (
-    <PageLayout title="Payments" subtitle="Acceptance fee choreography with finance escrow." showCta={false}>
-      <ApplicantPortalShell>
-        <div className="space-y-6">
-          <div className="rounded-2xl bg-primary text-white dark:bg-secondary/20 dark:border dark:border-secondary/60 p-5">
-            <h2 className="text-xl font-bold">Registration levy staging</h2>
-            <p className="text-sm mt-2 text-white/80 dark:text-slate-200">
-              When Admissions issues a provisional clearance, initiate your preferred payment rail below. Verified funds unlock
-              registrar finalization toward your student SSO.
-            </p>
-          </div>
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
+        <h2 className="text-base font-semibold text-slate-900 dark:text-white">Acceptance levy</h2>
+        <p className="mt-2 max-w-xl text-sm text-slate-600 dark:text-slate-400">
+          After Admissions admits you provisionally, start a payment instruction here. Verified funds unlock registrar finalization.
+        </p>
+      </div>
 
-          <div className="grid gap-3">
-            {GATEWAYS.map((g) => (
-              <button
-                key={g.code}
-                type="button"
-                className="text-left rounded-2xl border border-gray-100 dark:border-white/10 px-5 py-4 hover:border-secondary transition-colors bg-white dark:bg-slate-900"
-                onClick={async () => {
-                  await fetch('/api/admissions/me/payments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ gateway: g.code }),
-                  })
-                  window.location.reload()
-                }}
-              >
-                <p className="font-bold text-primary dark:text-secondary">{g.label}</p>
-                <p className="text-xs text-gray-500 mt-1">{g.note}</p>
-              </button>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {GATEWAYS.map((g) => (
+          <button
+            key={g.code}
+            type="button"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left text-sm transition-colors hover:border-slate-300 dark:border-white/10 dark:bg-slate-900 dark:hover:border-white/20"
+            onClick={async () => {
+              await fetch('/api/admissions/me/payments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gateway: g.code }),
+              })
+              window.location.reload()
+            }}
+          >
+            <p className="font-semibold text-slate-900 dark:text-white">{g.label}</p>
+            <p className="mt-1 text-xs text-slate-500">{g.note}</p>
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Outstanding</h3>
+        {(payments ?? []).length ? (
+          <ul className="mt-3 space-y-2 text-xs">
+            {payments.map((p) => (
+              <li key={p.id} className="flex flex-wrap justify-between gap-2 rounded-lg border border-slate-100 px-3 py-2 dark:border-white/10">
+                <span className="font-medium text-slate-800 dark:text-slate-200">{p.label}</span>
+                <span className="tabular-nums text-slate-600 dark:text-slate-400">
+                  {(p.amountMinor / 1000).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 })}{' '}
+                  {p.currency} · {p.status}
+                </span>
+              </li>
             ))}
-          </div>
-
-          <div className="border rounded-2xl p-5 bg-white dark:bg-slate-900 dark:border-white/10">
-            <h3 className="font-semibold mb-3">Outstanding rows</h3>
-            {(payments ?? []).length ? (
-              <ul className="text-xs space-y-2">
-                {payments.map((p) => (
-                  <li key={p.id} className="flex justify-between rounded-lg px-3 py-2 bg-slate-50 dark:bg-slate-800/70">
-                    <span className="font-semibold text-primary">{p.label}</span>
-                    <span>
-                      {(p.amountMinor / 1000).toLocaleString(undefined, {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 1,
-                      })}{' '}
-                      {p.currency} · {p.status}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No payment rows staged yet · await provisional admissions.</p>
-            )}
-          </div>
-        </div>
-      </ApplicantPortalShell>
-    </PageLayout>
+          </ul>
+        ) : (
+          <p className="mt-2 text-sm text-slate-500">Nothing due yet · await provisional admission.</p>
+        )}
+      </div>
+    </div>
   )
 }

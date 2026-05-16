@@ -7,6 +7,7 @@ const permissions = [
   { key: 'management.users.manage', name: 'Create and suspend users' },
   { key: 'management.users.delete', name: 'Delete user accounts' },
   { key: 'management.directory.view', name: 'View academic directory' },
+  { key: 'management.students.registry.view', name: 'Registrar: view enrolled student roster' },
 
   { key: 'admissions.view', name: 'View admission applications' },
   { key: 'admissions.manage', name: 'Process applications & letters' },
@@ -45,7 +46,7 @@ const permissions = [
   { key: 'hod.grades.record', name: 'HOD: semester marks entry' },
 
   // Lecturer portal NAV + teaching APIs (coarse gate)
-  { key: 'lecturer.portal.access', name: 'Use lecturer APIs & workspace' },
+  { key: 'lecturer.portal.access', name: 'Use lecturer APIs & portal' },
   { key: 'lecturer.nav.dashboard', name: 'Lecturer: Dashboard' },
   { key: 'lecturer.nav.reports', name: 'Lecturer: Teaching reports (read-only excerpts)' },
   { key: 'lecturer.nav.messages', name: 'Lecturer: Messages' },
@@ -60,6 +61,7 @@ const permissions = [
 
   { key: 'admissions.pipeline.view', name: 'View admissions pipeline' },
   { key: 'admissions.application.review', name: 'Review & decide applications' },
+  { key: 'admissions.application.manual_record', name: 'Record paper / walk-in applications manually' },
   { key: 'admissions.documents.verify', name: 'Verify applicant documents' },
   { key: 'admissions.registrar.finalize', name: 'Finalize enrollment & IDs' },
   { key: 'admissions.finance.payment', name: 'Verify admission fee payments' },
@@ -120,6 +122,7 @@ const STANDARD_ADMINExtras = [
   'system.audit.view',
   'admissions.pipeline.view',
   'admissions.application.review',
+  'admissions.application.manual_record',
   'admissions.documents.verify',
   'admissions.registrar.finalize',
   'admissions.finance.payment',
@@ -155,6 +158,7 @@ const rolePermissionKeys = {
     'admissions.pipeline.view',
     'admissions.application.review',
     'admissions.documents.verify',
+    'admissions.registrar.finalize',
     'admissions.analytics.view',
     'reports.view',
     'management.directory.view',
@@ -170,19 +174,12 @@ const rolePermissionKeys = {
 
   ACADEMIC_REGISTRAR: [
     ...MANAGEMENT_BASE,
-    'management.directory.view',
-    'academics.programs.manage',
-    'academics.certificates.manage',
-    'academics.timetable.manage',
     'admissions.view',
     'admissions.pipeline.view',
     'admissions.application.review',
     'admissions.registrar.finalize',
-    'admissions.analytics.view',
-    'reports.view',
-    'reports.export',
-    'management.users.view',
-    'communications.notifications.manage',
+    'admissions.application.manual_record',
+    'management.students.registry.view',
   ],
 
   ADMIN: [...new Set([...MANAGEMENT_BASE, ...STANDARD_ADMINExtras])],
