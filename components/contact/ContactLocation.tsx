@@ -1,8 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Bus, Car, MapPin, Navigation } from 'lucide-react'
+import { Bus, Car, Navigation } from 'lucide-react'
 
+import ContactCampusMap from '@/components/contact/ContactCampusMap'
 import GlassPanel from '@/components/contact/ui/GlassPanel'
 import { CAMPUS_LOCATION } from '@/lib/contact/content'
 import { fadeUp, stagger } from '@/components/contact/motion'
@@ -23,27 +24,8 @@ export default function ContactLocation() {
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-5">
-          <motion.div variants={fadeUp} custom={1} className="relative min-h-[320px] overflow-hidden rounded-2xl lg:col-span-3 lg:min-h-[400px]">
-            <motion.div
-              className="absolute inset-0 bg-primary"
-              aria-hidden
-            >
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:32px_32px]" />
-              <motion.div
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-secondary shadow-lg shadow-secondary/30">
-                  <MapPin className="h-7 w-7 text-primary" strokeWidth={2} aria-hidden />
-                  <span className="absolute -bottom-8 whitespace-nowrap text-xs font-bold text-white">MUT Campus</span>
-                </span>
-              </motion.div>
-            </motion.div>
-            <GlassPanel className="absolute bottom-4 left-4 right-4 border-white/20 bg-slate-950/70 p-4 sm:right-auto sm:max-w-xs">
-              <p className="text-sm font-semibold text-white">{CAMPUS_LOCATION.address}</p>
-              <p className="mt-1 text-xs text-slate-400">{CAMPUS_LOCATION.coordinates}</p>
-            </GlassPanel>
+          <motion.div variants={fadeUp} custom={1} className="lg:col-span-3">
+            <ContactCampusMap />
           </motion.div>
 
           <motion.div variants={fadeUp} custom={2} className="space-y-4 lg:col-span-2">

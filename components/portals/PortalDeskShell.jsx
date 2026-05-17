@@ -32,7 +32,7 @@ export default function PortalDeskShell({
   const noop = () => {}
 
   return (
-    <div data-portal-scope="light" className="flex h-dvh overflow-hidden bg-slate-50 text-slate-900">
+    <div data-portal-scope="light" data-desk-shell className="flex h-dvh overflow-hidden bg-slate-50 text-slate-900">
       <aside className="flex h-dvh w-[15rem] shrink-0 flex-col border-r border-slate-200/90 bg-white">
         <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-slate-200 bg-white px-3">
           <Logo className="h-8 w-8 shrink-0" />

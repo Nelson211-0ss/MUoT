@@ -6,7 +6,12 @@
  */
 @custom-variant dark {
   @media (prefers-color-scheme: dark) {
-    &:not(:where([data-portal-scope='light'], [data-portal-scope='light'] *)) {
+    &:not(:where(
+      [data-portal-scope='light'],
+      [data-portal-scope='light'] *,
+      [data-public-light],
+      [data-public-light] *
+    )) {
       @slot;
     }
   }
@@ -24,9 +29,9 @@ body {
   color: #111827;
 }
 
-/* Desk shells lock the viewport; only main content scrolls. */
-html:has([data-portal-scope='light']),
-body:has([data-portal-scope='light']) {
+/* Desk shells lock the viewport; only main content scrolls (not public pages). */
+html:has([data-desk-shell]),
+body:has([data-desk-shell]) {
   height: 100%;
   overflow: hidden;
 }

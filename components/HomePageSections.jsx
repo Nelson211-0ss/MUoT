@@ -1,8 +1,11 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, BookOpen, Sparkles } from 'lucide-react'
 
-import { homeSpotlight, homeCtaBackgroundSrc } from '@/lib/siteImages'
+import PremiumCtaBand from '@/components/marketing/PremiumCtaBand'
+import { homeSpotlight } from '@/lib/siteImages'
 
 const highlights = [
   'Project-based courses that mirror real product teams',
@@ -64,40 +67,18 @@ export function HomeSpotlightSection() {
 
 export function HomeCtaSection() {
   return (
-    <section className="relative py-16 md:py-[4.5rem] overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none" aria-hidden>
-        <Image
-          src={homeCtaBackgroundSrc}
-          alt=""
-          fill
-          className="object-cover scale-105"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/95 via-primary/92 to-[#05265c]/95" />
-      </div>
-      <div className="relative max-w-[800px] mx-auto px-4 sm:px-6 lg:px-10 text-center">
-        <h2 className="text-2xl md:text-3xl lg:text-[2.125rem] font-bold text-white leading-tight mb-4">
-          Ready to take the next step?
-        </h2>
-        <p className="text-white/85 text-sm md:text-base leading-relaxed mb-8">
-          Review admission requirements, prepare your documents, and start your application in minutes. Our team can
-          help you choose the right program.
-        </p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link
-            href="/admissions"
-            className="bg-secondary text-primary px-8 py-3 rounded-md font-bold text-sm sm:text-base hover:brightness-95 transition-all shadow-lg shadow-black/20"
-          >
-            Start application
-          </Link>
-          <Link
-            href="/programs"
-            className="border-2 border-white/70 text-white px-8 py-3 rounded-md font-semibold text-sm sm:text-base hover:bg-white/10 transition-colors"
-          >
-            Browse all programs
-          </Link>
-        </div>
-      </div>
-    </section>
+    <PremiumCtaBand
+      eyebrow="Begin your journey"
+      title="Ready to take the next step?"
+      description="Review admission requirements, prepare your documents, and start your application in minutes. Our team can help you choose the right programme."
+      bullets={[
+        { icon: Sparkles, text: 'Flexible online-first ICT pathways' },
+        { icon: BookOpen, text: 'Admissions guidance from first inquiry to enrollment' },
+      ]}
+      actions={[
+        { href: '/admissions/apply', label: 'Start application', variant: 'primary' },
+        { href: '/programs', label: 'Browse all programmes', variant: 'secondary' },
+      ]}
+    />
   )
 }

@@ -123,9 +123,35 @@ export const RESPONSE_CARDS = [
 export const CAMPUS_LOCATION = {
   address: 'Magwi Town, Eastern Equatoria State, South Sudan',
   coordinates: '4.130° N, 33.480° E',
+  /** Approximate campus coordinates — update when official GIS is published */
+  lat: 4.13,
+  lng: 33.48,
+  zoom: 14,
   landmarks: ['Main Administration Block', 'ICT Innovation Center', 'Student Center'],
   transport: 'Shuttle from Magwi town center · 10 min',
   parking: 'Visitor parking at Gate A',
+}
+
+/** Google Maps embed (no API key). Override with NEXT_PUBLIC_CAMPUS_MAP_EMBED_URL if needed. */
+export function getCampusMapEmbedUrl() {
+  const custom =
+    typeof process.env.NEXT_PUBLIC_CAMPUS_MAP_EMBED_URL === 'string'
+      ? process.env.NEXT_PUBLIC_CAMPUS_MAP_EMBED_URL.trim()
+      : ''
+  if (custom) return custom
+  const { lat, lng, zoom } = CAMPUS_LOCATION
+  const q = encodeURIComponent(`${lat},${lng}`)
+  return `https://www.google.com/maps?q=${q}&hl=en&z=${zoom}&output=embed`
+}
+
+export function getCampusDirectionsUrl() {
+  const { lat, lng } = CAMPUS_LOCATION
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+}
+
+export function getCampusMapViewUrl() {
+  const { lat, lng } = CAMPUS_LOCATION
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
 }
 
 export type FaqCategory = 'all' | 'admissions' | 'portal' | 'moodle' | 'fees' | 'records' | 'registration'
