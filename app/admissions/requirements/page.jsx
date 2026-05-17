@@ -1,28 +1,75 @@
-import PageLayout from '@/components/PageLayout'
+import Link from 'next/link'
+import { FileCheck, IdCard, Languages } from 'lucide-react'
+
+import AdmissionsPageLayout from '@/components/admissions/public/AdmissionsPageLayout'
+import AdmissionsMediaPanel from '@/components/admissions/public/AdmissionsMediaPanel'
+import AdmissionsCtaBand from '@/components/admissions/public/AdmissionsCtaBand'
 import SectionHeader from '@/components/SectionHeader'
+import { REQUIREMENTS_GROUPS } from '@/lib/admissions/public-pages'
+
+const GROUP_ICONS = {
+  'Academic credentials': FileCheck,
+  'Identity & references': IdCard,
+  'Language readiness': Languages,
+}
 
 export default function AdmissionRequirementsPage() {
-  const bullets = [
-    'SSC / recognised equivalent with proficiency in Mathematics & English.',
-    'Certified transcripts and national examination statements (PDF uploads).',
-    'Government-issued identification or biometric passport scans.',
-    'Two academic or professional referees · recommendation letters welcomed.',
-    'English-language readiness — bridge programmes coordinated if needed.',
-  ]
   return (
-    <PageLayout title="Admission requirements" subtitle="Credential expectations for ICT-first programmes." showCta={false}>
-      <SectionHeader
-        title="Readiness blueprint"
-        subtitle="Applicants upload originals through the dossier wizard; Admissions countersign authenticity."
-      />
-      <ul className="space-y-3 max-w-3xl text-sm leading-relaxed text-gray-700">
-        {bullets.map((b) => (
-          <li key={b} className="flex gap-3">
-            <span className="mt-2 h-2 w-2 rounded-full bg-secondary shrink-0" />
-            {b}
-          </li>
-        ))}
-      </ul>
-    </PageLayout>
+    <AdmissionsPageLayout
+      title="Admission requirements"
+      subtitle="Credential and identity expectations for undergraduate ICT programmes."
+      showCta={false}
+    >
+      <AdmissionsMediaPanel
+        reverse
+        title="Prepare your dossier before you apply"
+        description="Upload certified PDFs through the applicant portal. Admissions officers verify authenticity before provisional decisions are recorded."
+      >
+        <Link
+          href="/admissions/apply"
+          className="inline-flex rounded-xl border-2 border-primary px-5 py-2.5 text-sm font-semibold text-primary hover:bg-primary hover:text-white"
+        >
+          Open application wizard
+        </Link>
+      </AdmissionsMediaPanel>
+
+      <section className="mt-14 md:mt-16">
+        <SectionHeader
+          align="left"
+          title="Readiness checklist"
+          subtitle="Group your documents early — incomplete files delay desk review."
+        />
+        <div className="grid gap-6 lg:grid-cols-3">
+          {REQUIREMENTS_GROUPS.map((group) => {
+            const Icon = GROUP_ICONS[group.title] ?? FileCheck
+            return (
+              <article key={group.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/20 text-primary">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-primary">{group.title}</h3>
+                <ul className="mt-3 space-y-2">
+                  {group.items.map((item) => (
+                    <li key={item} className="flex gap-2 text-sm leading-relaxed text-slate-600">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" aria-hidden />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <AdmissionsCtaBand
+          title="Documents ready?"
+          description="Register once, then upload everything in the guided wizard."
+          secondaryHref="/admissions/faqs"
+          secondaryLabel="Read FAQs"
+        />
+      </section>
+    </AdmissionsPageLayout>
   )
 }

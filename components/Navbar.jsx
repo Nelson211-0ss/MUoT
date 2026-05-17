@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Menu,
   X,
@@ -16,6 +16,7 @@ import {
   ClipboardList,
 } from 'lucide-react'
 import Logo from '@/components/Logo'
+import NavHoverDropdown from '@/components/NavHoverDropdown'
 import SocialLinks from '@/components/SocialLinks'
 import { isHoDRoleSlug, isManagementRoleSlug } from '@/lib/rbac/constants'
 
@@ -96,16 +97,11 @@ function pathnameMatchesHref(pathname, href) {
 export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [elearningMenu, setElearningMenu] = useState(false)
-  const [admissionsMenu, setAdmissionsMenu] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const pathname = usePathname()
   const isLoginPage = pathname === '/login'
 
   const [sessionUser, setSessionUser] = useState(null)
-  const elearningRef = useRef(null)
-  const admissionsRef = useRef(null)
-
   useEffect(() => {
     fetch('/api/auth/session')
       .then((r) => (r.status === 200 ? r.json() : null))
@@ -126,16 +122,6 @@ export default function Navbar() {
     [pathname],
   )
 
-  useEffect(() => {
-    function onPointerDown(ev) {
-      const t = ev.target
-      if (elearningRef.current && !elearningRef.current.contains(t)) setElearningMenu(false)
-      if (admissionsRef.current && !admissionsRef.current.contains(t)) setAdmissionsMenu(false)
-    }
-    document.addEventListener('pointerdown', onPointerDown)
-    return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [])
-
   async function handleSignOut() {
     setSigningOut(true)
     try {
@@ -143,7 +129,6 @@ export default function Navbar() {
       setSessionUser(null)
       router.push('/login')
       router.refresh()
-      setElearningMenu(false)
       setOpen(false)
     } finally {
       setSigningOut(false)
@@ -190,108 +175,50 @@ export default function Navbar() {
               </Link>
             )
           })}
-          <div ref={admissionsRef} className="relative">
-            <button
-              type="button"
-              aria-expanded={admissionsMenu}
-              aria-haspopup="menu"
-              aria-label="Admissions menu"
-              onClick={() => {
-                setAdmissionsMenu((m) => !m)
-                setElearningMenu(false)
-              }}
-              className={`relative pb-1 inline-flex items-center gap-1 hover:text-primary transition-colors ${
-                admissionsActive ? 'text-primary' : ''
-              }`}
-            >
-              Admissions
-              <ChevronDown
-                size={16}
-                className={`opacity-70 transition-transform ${admissionsMenu ? 'rotate-180' : ''}`}
-                aria-hidden
-              />
-              {admissionsActive ? (
-                <span className="absolute -bottom-1 left-0 right-0 mx-auto h-[3px] w-6 bg-secondary rounded-full" />
-              ) : null}
-            </button>
-            {admissionsMenu ? (
-              <div
-                role="menu"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[18rem] rounded-xl border border-gray-100 bg-white shadow-xl py-2 z-[60]"
-              >
-                <p className="px-3 pb-1 text-[10px] uppercase font-bold text-gray-400 tracking-wide">
-                  Undergraduate admissions
-                </p>
-                {ADMISSION_NAV.map(({ id, label, subtitle, href }) => (
-                  <Link
-                    key={id}
-                    role="menuitem"
-                    href={href}
-                    prefetch={shouldDisablePrefetch(href) ? false : undefined}
-                    className="flex items-start gap-2 px-3 py-2.5 text-sm text-gray-700 hover:bg-slate-50"
-                    onClick={() => setAdmissionsMenu(false)}
-                  >
-                    <PenSquare className="w-4 h-4 mt-0.5 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
-                    <span>
-                      <span className="font-semibold text-primary block">{label}</span>
-                      <span className="text-xs text-gray-500">{subtitle}</span>
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
-          <div ref={elearningRef} className="relative">
-            <button
-              type="button"
-              aria-expanded={elearningMenu}
-              aria-haspopup="menu"
-              aria-label="E-Learning menu"
-              onClick={() => {
-                setElearningMenu((m) => !m)
-                setAdmissionsMenu(false)
-              }}
-              className={`relative pb-1 inline-flex items-center gap-1 hover:text-primary transition-colors ${
-                elearningActive ? 'text-primary' : ''
-              }`}
-            >
-              E-Learning
-              <ChevronDown
-                size={16}
-                className={`opacity-70 transition-transform ${elearningMenu ? 'rotate-180' : ''}`}
-                aria-hidden
-              />
-              {elearningActive ? (
-                <span className="absolute -bottom-1 left-0 right-0 mx-auto h-[3px] w-6 bg-secondary rounded-full" />
-              ) : null}
-            </button>
-            {elearningMenu ? (
-              <div
-                role="menu"
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[15.75rem] rounded-xl border border-gray-100 bg-white shadow-xl py-2 z-[60]"
-              >
-                <p className="px-3 pb-1 text-[10px] uppercase font-bold text-gray-400 tracking-wide">
-                  Moodle LMS
-                </p>
-                {E_LEARNING_MENU.map(({ id, label, href, subtitle, Icon }) => (
-                  <Link
-                    key={id}
-                    role="menuitem"
-                    href={href}
-                    prefetch={shouldDisablePrefetch(href) ? false : undefined}
-                    className="flex items-start gap-2 px-3 py-2.5 text-sm text-gray-700 hover:bg-slate-50"
-                    onClick={() => setElearningMenu(false)}
-                  >
-                    <Icon className="w-4 h-4 mt-0.5 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
-                    <span>
-                      <span className="font-semibold text-primary block">{label}</span>
-                      <span className="text-xs text-gray-500">{subtitle}</span>
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+          <NavHoverDropdown label="Admissions" active={admissionsActive}>
+            <div role="menu" className="w-[18rem] rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
+              <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                Undergraduate admissions
+              </p>
+              {ADMISSION_NAV.map(({ id, label, subtitle, href }) => (
+                <Link
+                  key={id}
+                  role="menuitem"
+                  href={href}
+                  prefetch={shouldDisablePrefetch(href) ? false : undefined}
+                  className="flex items-start gap-2 px-3 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  <PenSquare className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
+                  <span>
+                    <span className="block font-semibold text-primary">{label}</span>
+                    <span className="text-xs text-slate-500">{subtitle}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </NavHoverDropdown>
+
+          <NavHoverDropdown label="E-Learning" active={elearningActive}>
+            <div role="menu" className="w-[15.75rem] rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
+              <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">Moodle LMS</p>
+              {E_LEARNING_MENU.map(({ id, label, href, subtitle, Icon }) => (
+                <Link
+                  key={id}
+                  role="menuitem"
+                  href={href}
+                  prefetch={shouldDisablePrefetch(href) ? false : undefined}
+                  className="flex items-start gap-2 px-3 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden strokeWidth={1.75} />
+                  <span>
+                    <span className="block font-semibold text-primary">{label}</span>
+                    <span className="text-xs text-slate-500">{subtitle}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </NavHoverDropdown>
+
           {NAV_AFTER_EL.map((link) => {
             const active = pathname === link.href.split('?')[0]
             const noPrefetch = shouldDisablePrefetch(link.href)

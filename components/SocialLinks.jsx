@@ -1,32 +1,18 @@
-import { Facebook, Instagram, Linkedin, Youtube, Twitter } from 'lucide-react'
+import {
+  IconFacebook,
+  IconInstagram,
+  IconLinkedIn,
+  IconX,
+  IconYouTube,
+} from '@/components/icons/SocialBrandIcons'
 
 /** Update hrefs when official MUT profiles are published. */
 const SOCIAL_ITEMS = [
-  {
-    label: 'Facebook',
-    href: 'https://www.facebook.com/',
-    Icon: Facebook,
-  },
-  {
-    label: 'Instagram',
-    href: 'https://www.instagram.com/',
-    Icon: Instagram,
-  },
-  {
-    label: 'X (Twitter)',
-    href: 'https://twitter.com/',
-    Icon: Twitter,
-  },
-  {
-    label: 'LinkedIn',
-    href: 'https://www.linkedin.com/',
-    Icon: Linkedin,
-  },
-  {
-    label: 'YouTube',
-    href: 'https://www.youtube.com/',
-    Icon: Youtube,
-  },
+  { label: 'Facebook', href: 'https://www.facebook.com/', Icon: IconFacebook },
+  { label: 'Instagram', href: 'https://www.instagram.com/', Icon: IconInstagram },
+  { label: 'X', href: 'https://x.com/', Icon: IconX },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/', Icon: IconLinkedIn },
+  { label: 'YouTube', href: 'https://www.youtube.com/', Icon: IconYouTube },
 ]
 
 export default function SocialLinks({ variant = 'light', className = '' }) {
@@ -46,7 +32,7 @@ export default function SocialLinks({ variant = 'light', className = '' }) {
             aria-label={`${label} — opens in new tab`}
             className={`inline-flex rounded-lg p-2 transition-colors ${linkClasses}`}
           >
-            <Icon className="w-5 h-5 shrink-0" strokeWidth={1.75} aria-hidden />
+            <Icon className="h-5 w-5" />
           </a>
         </li>
       ))}
