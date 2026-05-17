@@ -28,7 +28,7 @@ export default function Hero() {
     : { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }
 
   return (
-    <section className="relative bg-primary text-white overflow-hidden rounded-br-[80px] md:rounded-br-[120px]">
+    <section className="relative overflow-hidden rounded-br-[48px] bg-primary text-white sm:rounded-br-[80px] md:rounded-br-[120px]">
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute inset-0 opacity-[0.12]"
@@ -61,7 +61,7 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="z-10"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem] font-bold leading-[1.15] mb-5">
+            <h1 className="mb-5 text-3xl font-bold leading-[1.15] sm:text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem]">
               Learn Anywhere.
               <br />
               Lead Everywhere
@@ -95,7 +95,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="relative z-10 flex justify-center lg:justify-end w-full"
           >
-            <div className="relative w-full max-w-[min(100%,800px)] lg:max-w-none h-[360px] sm:h-[440px] md:h-[520px] lg:h-[540px] xl:h-[600px] overflow-hidden">
+            <div className="relative h-[280px] w-full max-w-[min(100%,800px)] overflow-hidden sm:h-[360px] md:h-[440px] lg:h-[520px] lg:max-w-none xl:h-[600px]">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={current.src}

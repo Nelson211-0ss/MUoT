@@ -165,7 +165,7 @@ export default function StudentPortalShell({ data, permissionKeys = [] }) {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Status</p>
-                    <p className="mt-2 text-3xl font-black text-slate-900">{statusLabel(data.application.status)}</p>
+                    <p className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl">{statusLabel(data.application.status)}</p>
                   </div>
                   <span className="rounded-full bg-primary px-4 py-1 text-xs font-bold text-secondary">
                     {data.application.studentNumber ?? 'Awaiting registrar ID'}

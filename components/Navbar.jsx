@@ -139,17 +139,19 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-50 w-full shrink-0 bg-white shadow-sm ${isLoginPage ? 'border-b border-gray-100/90' : 'border-b border-gray-100'}`}
     >
-      <nav className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-3 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
-          <Logo className={`shrink-0 ${isLoginPage ? 'h-10 w-10 sm:h-11 sm:w-11' : 'h-12 w-12 sm:h-14 sm:w-14'}`} />
-          <div>
-            <p className="text-[11px] sm:text-xs font-bold text-primary leading-tight tracking-wide uppercase">
+      <nav className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6 lg:px-10">
+        <Link href="/" className="flex min-w-0 max-w-[58%] items-center gap-2 sm:max-w-none sm:gap-3">
+          <Logo className={`shrink-0 ${isLoginPage ? 'h-10 w-10 sm:h-11 sm:w-11' : 'h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14'}`} />
+          <div className="min-w-0">
+            <p className="truncate text-[10px] font-bold uppercase leading-tight tracking-wide text-primary sm:text-xs">
               Magwi University
             </p>
-            <p className="text-[11px] sm:text-xs font-bold text-primary leading-tight tracking-wide uppercase">
+            <p className="truncate text-[10px] font-bold uppercase leading-tight tracking-wide text-primary sm:text-xs">
               of Technology
             </p>
-            <p className="text-[10px] sm:text-[11px] font-semibold text-secondary mt-0.5">Innovating the Future</p>
+            <p className="mt-0.5 hidden text-[10px] font-semibold text-secondary sm:block sm:text-[11px]">
+              Innovating the Future
+            </p>
           </div>
         </Link>
 

@@ -221,14 +221,17 @@ export default function AdminDashboard({
       headerDescription={`${viewer?.name ?? ''} · ${roleLabel}`}
       mainInnerClassName="mx-auto w-full max-w-5xl lg:max-w-6xl"
       showSearch={false}
-      sidebar={() =>
+      sidebar={(closeMobile) =>
         sections.map((s) => {
           const Icon = s.icon
           return (
             <button
               key={s.id}
               type="button"
-              onClick={() => setSection(s.id)}
+              onClick={() => {
+                setSection(s.id)
+                closeMobile()
+              }}
               className={deskNavLinkClass(section === s.id)}
             >
               <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />

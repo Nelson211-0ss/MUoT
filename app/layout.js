@@ -12,6 +12,11 @@ export const metadata = {
   description: 'Online university dedicated to world-class IT education anytime, anywhere.',
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={poppins.variable}>

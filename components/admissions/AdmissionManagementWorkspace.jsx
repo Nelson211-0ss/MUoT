@@ -197,7 +197,7 @@ export default function AdmissionManagementWorkspace({ viewer, permissionKeys })
             placeholder="Filter by email/name"
             value={filter}
             onChange={(ev) => setFilter(ev.target.value)}
-            className="min-w-[200px] flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="min-w-0 flex-1 basis-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:basis-auto sm:min-w-[12rem]"
           />
           <select
             value={statusFilter}

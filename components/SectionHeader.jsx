@@ -1,14 +1,22 @@
-export default function SectionHeader({ title, subtitle, align = 'center' }) {
-  const alignClass = align === 'left' ? 'text-left' : 'text-center'
+/** @param {{ eyebrow?: string; title: string; subtitle?: string; align?: 'left' | 'center' }} props */
+export default function SectionHeader({ eyebrow, title, subtitle, align = 'left' }) {
+  const alignClass = align === 'center' ? 'text-center' : 'text-left'
 
   return (
-    <div className={`mb-10 md:mb-12 ${alignClass}`}>
-      <h2 className="text-2xl md:text-3xl font-bold text-primary mb-3">{title}</h2>
-      {subtitle && (
-        <p className={`text-gray-500 text-base md:text-lg max-w-2xl leading-relaxed ${align === 'center' ? 'mx-auto' : ''}`}>
+    <div className={`mb-8 md:mb-10 ${alignClass}`}>
+      {eyebrow ? (
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
+      ) : null}
+      <h2 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">{title}</h2>
+      {subtitle ? (
+        <p
+          className={`mt-3 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg ${
+            align === 'center' ? 'mx-auto' : ''
+          }`}
+        >
           {subtitle}
         </p>
-      )}
+      ) : null}
     </div>
   )
 }

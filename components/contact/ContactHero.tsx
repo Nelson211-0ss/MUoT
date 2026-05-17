@@ -92,7 +92,7 @@ export default function ContactHero() {
           </div>
 
           <motion.div variants={fadeUp} custom={4} className="space-y-3">
-            <motion.div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+            <motion.div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
               {CONTACT_STATS.map((stat) => (
                 <GlassPanel key={stat.label} hover className="p-3 sm:p-4">
                   <p className="text-lg font-bold text-secondary sm:text-xl">{stat.value}</p>
@@ -102,7 +102,7 @@ export default function ContactHero() {
                 </GlassPanel>
               ))}
             </motion.div>
-            <GlassPanel className="flex items-center justify-between gap-3 p-3.5 sm:p-4">
+            <GlassPanel className="flex flex-col gap-3 p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4">
               <div>
                 <p className="text-xs font-semibold sm:text-sm">Live contact routing</p>
                 <p className="mt-0.5 text-[10px] text-slate-400 sm:text-xs">Smart desk assignment · Enterprise SLA</p>

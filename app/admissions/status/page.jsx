@@ -4,6 +4,7 @@ import { Bell, ClipboardList, LogIn } from 'lucide-react'
 import AdmissionsPageLayout from '@/components/admissions/public/AdmissionsPageLayout'
 import AdmissionsMediaPanel from '@/components/admissions/public/AdmissionsMediaPanel'
 import AdmissionsCtaBand from '@/components/admissions/public/AdmissionsCtaBand'
+import SectionHeader from '@/components/SectionHeader'
 
 const TRACK_STEPS = [
   { icon: LogIn, title: 'Sign in', text: 'Use your applicant email and password from registration.' },
@@ -30,22 +31,30 @@ export default function AdmissionStatusLanding() {
         </Link>
       </AdmissionsMediaPanel>
 
-      <section className="mt-14 grid gap-4 md:grid-cols-3">
+      <section className="mt-14 md:mt-16">
+        <SectionHeader
+          eyebrow="Portal"
+          align="left"
+          title="How to check status"
+          subtitle="Three steps to see where your application stands."
+        />
+        <div className="grid gap-4 md:grid-cols-3">
         {TRACK_STEPS.map((step) => {
           const Icon = step.icon
           return (
             <article key={step.title} className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white">
-                <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/20 text-primary">
+                <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
               </span>
               <h3 className="mt-4 font-bold text-primary">{step.title}</h3>
               <p className="mt-2 text-sm text-slate-600">{step.text}</p>
             </article>
           )
         })}
+        </div>
       </section>
 
-      <section className="mt-14">
+      <section className="mt-14 md:mt-16">
         <AdmissionsCtaBand
           title="Not registered yet?"
           description="Create your applicant account first, then complete the online dossier."

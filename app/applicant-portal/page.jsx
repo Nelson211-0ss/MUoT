@@ -100,7 +100,7 @@ export default function ApplicantDashboardPage() {
           </span>
         </div>
         <ProgressBar value={progress.pct} className="mt-6" />
-        <div className="mt-6 flex flex-wrap justify-between gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 md:gap-3">
           {STEPS.map((label, i) => (
             <div key={label} className="flex flex-col items-center gap-2 text-center">
               <div

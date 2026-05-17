@@ -51,8 +51,8 @@ export default function PortalPasswordSection() {
           {status.message}
         </p>
       )}
-      <form onSubmit={onSubmit} className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-end max-w-xl">
-        <div className="flex-1 min-w-[140px]">
+      <form onSubmit={onSubmit} className="flex max-w-xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+        <div className="w-full min-w-0 flex-1 sm:min-w-[8rem]">
           <label className="text-xs font-medium text-gray-500 block mb-1">Current password</label>
           <input
             name="currentPassword"
@@ -62,7 +62,7 @@ export default function PortalPasswordSection() {
             disabled={pending}
           />
         </div>
-        <div className="flex-1 min-w-[140px]">
+        <div className="w-full min-w-0 flex-1 sm:min-w-[8rem]">
           <label className="text-xs font-medium text-gray-500 block mb-1">New password</label>
           <input
             name="newPassword"
@@ -73,7 +73,7 @@ export default function PortalPasswordSection() {
             disabled={pending}
           />
         </div>
-        <div className="flex-1 min-w-[140px]">
+        <div className="w-full min-w-0 flex-1 sm:min-w-[8rem]">
           <label className="text-xs font-medium text-gray-500 block mb-1">Confirm new</label>
           <input
             name="confirm"

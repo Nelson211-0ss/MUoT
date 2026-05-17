@@ -107,8 +107,8 @@ export default function AdmissionApplicationWizard({ catalog, snapshot }) {
 
           {applicantMode !== 'reapply' ? (
             <>
-              <div className="flex flex-wrap gap-2 items-center justify-between">
-                <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <div className="-mx-1 flex gap-2 overflow-x-auto pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
                   {steps.map((label, i) => (
                     <button
                       key={label}

@@ -219,7 +219,7 @@ export default function LoginForm() {
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-white shadow-2xl shadow-black/25">
         <div className="h-1.5 bg-secondary" aria-hidden />
 
-        <div className="px-7 py-8 sm:px-9 sm:py-9">
+        <div className="px-5 py-7 sm:px-9 sm:py-9">
           <div className="text-center">
             <h2 className="text-2xl font-semibold tracking-tight text-primary sm:text-[1.65rem]">{title}</h2>
             <p className="mx-auto mt-2 max-w-[22rem] text-sm leading-relaxed text-slate-600">{subtitle}</p>

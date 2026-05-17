@@ -35,6 +35,7 @@ export default function AdmissionRequirementsPage() {
 
       <section className="mt-14 md:mt-16">
         <SectionHeader
+          eyebrow="Checklist"
           align="left"
           title="Readiness checklist"
           subtitle="Group your documents early — incomplete files delay desk review."

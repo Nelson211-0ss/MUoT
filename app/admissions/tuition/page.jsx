@@ -21,13 +21,20 @@ export default function TuitionPage() {
       />
 
       <section className="mt-14 md:mt-16">
-        <SectionHeader align="left" title="Fee structure" subtitle="Council may update amounts — always confirm in your portal." />
+        <SectionHeader
+          eyebrow="Fees"
+          align="left"
+          title="Fee structure"
+          subtitle="Council may update amounts — always confirm in your portal."
+        />
         <div className="grid gap-5 md:grid-cols-3">
           {TUITION_ITEMS.map((item, i) => {
             const Icon = TUITION_ICONS[i] ?? Banknote
             return (
-              <article key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                <Icon className="h-8 w-8 text-primary" strokeWidth={1.5} aria-hidden />
+              <article key={item.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/20 text-primary">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+                </span>
                 <p className="mt-4 text-2xl font-bold text-primary">{item.amount}</p>
                 <h3 className="mt-1 font-semibold text-slate-900">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.description}</p>

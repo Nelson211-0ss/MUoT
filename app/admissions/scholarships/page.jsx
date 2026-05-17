@@ -23,6 +23,7 @@ export default function ScholarshipPage() {
 
       <section className="mt-14 md:mt-16">
         <SectionHeader
+          eyebrow="Funding"
           align="left"
           title="Award bands"
           subtitle="Eligibility combines merit, equity goals, and programme strategic priorities."
@@ -32,8 +33,8 @@ export default function ScholarshipPage() {
             const Icon = BAND_ICONS[i] ?? Award
             return (
               <article key={band.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-                  <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/20 text-primary">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
                 </span>
                 <h3 className="mt-4 text-lg font-bold text-primary">{band.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{band.description}</p>

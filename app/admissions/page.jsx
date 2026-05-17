@@ -67,8 +67,9 @@ export default function AdmissionsHubPage() {
         </Link>
       </AdmissionsMediaPanel>
 
-      <section className="mt-16 md:mt-20">
+      <section className="mt-14 md:mt-16">
         <SectionHeader
+          eyebrow="Process"
           align="left"
           title="How admissions works"
           subtitle="Four clear stages from registration through registrar enrollment."
@@ -76,12 +77,12 @@ export default function AdmissionsHubPage() {
         <AdmissionsProcessSteps steps={ADMISSIONS_PROCESS} />
       </section>
 
-      <section className="mt-16 md:mt-20">
+      <section className="mt-14 md:mt-16">
         <AdmissionsStatGrid items={ADMISSIONS_STATS} />
       </section>
 
-      <section className="mt-16 md:mt-20">
-        <SectionHeader align="left" title="Explore the desk" subtitle="Everything you need before you apply." />
+      <section className="mt-14 md:mt-16">
+        <SectionHeader eyebrow="Resources" align="left" title="Explore the desk" subtitle="Everything you need before you apply." />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {QUICK_LINKS.map((card) => (
             <AdmissionsFeatureCard key={card.href} {...card} />
@@ -89,7 +90,7 @@ export default function AdmissionsHubPage() {
         </div>
       </section>
 
-      <section className="mt-16 grid gap-4 md:grid-cols-3 md:mt-20">
+      <section className="mt-14 grid gap-4 md:grid-cols-3 md:mt-16">
         <div className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <GraduationCap className="h-6 w-6 shrink-0 text-primary" strokeWidth={1.75} />
           <div>
@@ -113,7 +114,7 @@ export default function AdmissionsHubPage() {
         </div>
       </section>
 
-      <section className="mt-16 md:mt-20">
+      <section className="mt-14 md:mt-16">
         <AdmissionsCtaBand />
       </section>
 

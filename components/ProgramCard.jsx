@@ -90,20 +90,38 @@ export default function ProgramCard({ title, desc, variant = 'home', coverImage,
     )
   }
 
+  if (variant === 'catalog') {
+    return (
+      <motion.article
+        whileHover={{ y: -4 }}
+        className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+      >
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/20 text-primary">
+          <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+        </span>
+        <h3 className="mt-4 text-lg font-bold text-primary">{title}</h3>
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{desc}</p>
+        <Link href="/admissions/apply" className="mt-4 text-sm font-semibold text-primary hover:underline">
+          Apply for this programme →
+        </Link>
+      </motion.article>
+    )
+  }
+
   return (
     <motion.div
       whileHover={{ y: -2 }}
-      className="bg-white rounded-xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100 h-full"
+      className="h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
     >
       <div className="flex gap-4">
-        <div className={`shrink-0 w-12 h-12 rounded-full ${style.iconBg} flex items-center justify-center ${style.iconColor}`}>
-          <Icon size={22} strokeWidth={2} />
-        </div>
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/20 text-primary">
+          <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+        </span>
         <div className="min-w-0">
-          <h3 className="font-bold text-primary text-[15px] mb-1.5 leading-snug">{title}</h3>
-          <p className="text-sm text-gray-500 leading-relaxed mb-3">{desc}</p>
-          <Link href="/programs" className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
-            View Program →
+          <h3 className="mb-1.5 text-[15px] font-bold leading-snug text-primary">{title}</h3>
+          <p className="mb-3 text-sm leading-relaxed text-slate-600">{desc}</p>
+          <Link href="/programs" className="text-sm font-semibold text-primary hover:underline">
+            View programme →
           </Link>
         </div>
       </div>

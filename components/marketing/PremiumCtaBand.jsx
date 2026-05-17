@@ -74,7 +74,7 @@ export default function PremiumCtaBand({
             {eyebrow ? (
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary">{eyebrow}</p>
             ) : null}
-            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{title}</h2>
             {description ? (
               <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-300 sm:text-base">{description}</p>
             ) : null}
@@ -97,27 +97,34 @@ export default function PremiumCtaBand({
           >
             {children ?? (
               <div className="flex flex-col gap-3">
-                {actions.map((action, i) => {
+                {actions.map((action) => {
                   const isPrimary = action.variant !== 'secondary'
-                  if (isPrimary) {
+                  const external = /^https?:\/\//i.test(action.href)
+                  const className = isPrimary
+                    ? 'inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3.5 text-sm font-bold text-primary transition-all hover:brightness-95'
+                    : 'inline-flex w-full items-center justify-center rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10'
+                  const label = (
+                    <>
+                      {action.label}
+                      {isPrimary ? <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden /> : null}
+                    </>
+                  )
+                  if (external) {
                     return (
-                      <Link
+                      <a
                         key={action.href + action.label}
                         href={action.href}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3.5 text-sm font-bold text-primary transition-all hover:brightness-95"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={className}
                       >
-                        {action.label}
-                        <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden />
-                      </Link>
+                        {label}
+                      </a>
                     )
                   }
                   return (
-                    <Link
-                      key={action.href + action.label}
-                      href={action.href}
-                      className="inline-flex w-full items-center justify-center rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                    >
-                      {action.label}
+                    <Link key={action.href + action.label} href={action.href} className={className}>
+                      {label}
                     </Link>
                   )
                 })}
