@@ -6,6 +6,7 @@ import { ArrowRight, Mail, Phone } from 'lucide-react'
 import GlassPanel from '@/components/contact/ui/GlassPanel'
 import { CONTACT_DEPARTMENTS } from '@/lib/contact/content'
 import { fadeUp, stagger } from '@/components/contact/motion'
+import { toTitleCase } from '@/lib/toTitleCase'
 import { cn } from '@/lib/utils'
 
 export default function ContactDepartments() {
@@ -21,7 +22,7 @@ export default function ContactDepartments() {
         <motion.div variants={fadeUp} custom={0} className="mb-10 max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Departments</p>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Connect with the right team
+            {toTitleCase('Connect with the right team')}
           </h2>
           <p className="mt-3 text-slate-600">
             Premium service desks for every part of your university journey.

@@ -6,6 +6,7 @@ import { Mail, MessageSquare, Shield } from 'lucide-react'
 import ContactPremiumForm from '@/components/contact/ContactPremiumForm'
 import GlassPanel from '@/components/contact/ui/GlassPanel'
 import { fadeUp, stagger } from '@/components/contact/motion'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 export default function ContactFormSection() {
   return (
@@ -21,7 +22,7 @@ export default function ContactFormSection() {
           <motion.div variants={fadeUp} custom={0} className="flex flex-col justify-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Get in touch</p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-              Ultra-premium contact form
+              {toTitleCase('Ultra-premium contact form')}
             </h2>
             <p className="mt-4 max-w-md text-slate-600">
               Intelligent routing to the right desk. Designed for clarity, speed, and enterprise-grade trust.
