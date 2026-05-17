@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 import type { FooterLinkGroup } from '@/lib/footer/data'
 import { cn } from '@/lib/utils'
@@ -39,12 +39,14 @@ export default function FooterLinkColumn({ group, index = 0, className }: Footer
                 prefetch={link.href.startsWith('http') ? false : undefined}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
-                className="text-[13px] text-slate-400 transition-colors hover:text-white"
+                className="group inline-flex items-center gap-2 text-[13px] text-slate-400 transition-colors hover:text-white"
               >
+                <ArrowRight
+                  className="h-3.5 w-3.5 shrink-0 text-secondary transition-transform group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                  aria-hidden
+                />
                 <span>{link.label}</span>
-                {link.external ? (
-                  <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-70" aria-hidden />
-                ) : null}
               </Link>
             </motion.div>
           </li>
