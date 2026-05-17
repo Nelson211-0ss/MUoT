@@ -6,6 +6,7 @@ import { CheckCircle2, BookOpen, Sparkles } from 'lucide-react'
 
 import PremiumCtaBand from '@/components/marketing/PremiumCtaBand'
 import { homeSpotlight } from '@/lib/siteImages'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 const highlights = [
   'Project-based courses that mirror real product teams',
@@ -30,7 +31,7 @@ export function HomeSpotlightSection() {
           <div className="text-center lg:text-left">
             <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-2">Our mission</p>
             <h2 className="text-2xl md:text-3xl lg:text-[2rem] font-bold text-primary leading-tight mb-4">
-              Equipping South Sudan and the region with world-class technology skills
+              {toTitleCase('Equipping South Sudan and the region with world-class technology skills')}
             </h2>
             <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
               Magwi University of Technology (MUT) delivers rigorous, online-first programs in software, security, data,

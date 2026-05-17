@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 
+import { toTitleCase } from '@/lib/toTitleCase'
+
 export default function PageBanner({ title, subtitle }) {
   return (
     <section className="relative bg-primary text-white overflow-hidden rounded-br-[60px] md:rounded-br-[100px]">
@@ -19,7 +21,7 @@ export default function PageBanner({ title, subtitle }) {
           transition={{ duration: 0.45 }}
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-            {title}
+            {toTitleCase(title)}
             <span className="text-secondary">.</span>
           </h1>
           {subtitle && (

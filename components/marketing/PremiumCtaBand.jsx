@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 
+import { toTitleCase } from '@/lib/toTitleCase'
 import { cn } from '@/lib/utils'
 
 const fadeUp = {
@@ -74,7 +75,7 @@ export default function PremiumCtaBand({
             {eyebrow ? (
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-secondary">{eyebrow}</p>
             ) : null}
-            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{title}</h2>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{toTitleCase(title)}</h2>
             {description ? (
               <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-300 sm:text-base">{description}</p>
             ) : null}

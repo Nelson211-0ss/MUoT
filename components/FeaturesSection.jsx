@@ -1,5 +1,7 @@
 import { MonitorSmartphone, Briefcase, UsersRound, BadgeCheck } from 'lucide-react'
 
+import { toTitleCase } from '@/lib/toTitleCase'
+
 const features = [
   {
     icon: MonitorSmartphone,
@@ -37,7 +39,9 @@ export default function FeaturesSection() {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="max-w-2xl mx-auto text-center mb-10 md:mb-12">
           <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-2">Why choose MUT</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-3">Designed for flexible, career-focused learning</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-3">
+            {toTitleCase('Designed for flexible, career-focused learning')}
+          </h2>
           <p className="text-gray-500 text-sm md:text-base leading-relaxed">
             Study on your schedule with practical projects, mentor support, and credentials that resonate with employers.
           </p>

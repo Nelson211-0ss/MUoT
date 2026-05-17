@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import { toTitleCase } from '@/lib/toTitleCase'
+
 /** Split hero intro with image — used below PageBanner on marketing pages. */
 export default function MediaIntroPanel({
   title,
@@ -27,7 +29,7 @@ export default function MediaIntroPanel({
         </div>
       </div>
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">{title}</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-primary md:text-3xl">{toTitleCase(title)}</h2>
         <p className="mt-3 text-base leading-relaxed text-slate-600">{description}</p>
         {children ? <div className="mt-6 flex flex-wrap gap-3">{children}</div> : null}
       </div>

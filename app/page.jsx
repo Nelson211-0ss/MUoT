@@ -4,8 +4,10 @@ import FeaturesSection from '@/components/FeaturesSection'
 import ProgramCard from '@/components/ProgramCard'
 import Footer from '@/components/Footer'
 import { HomeSpotlightSection, HomeCtaSection } from '@/components/HomePageSections'
+import PartnersSection from '@/components/marketing/PartnersSection'
 import { homeProgramCovers } from '@/lib/siteImages'
 import { FlyInMount, RevealFlyIn } from '@/components/PageMotion'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 export default function Home() {
   return (
@@ -25,7 +27,7 @@ export default function Home() {
         <section className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-14 md:py-20 pb-16 md:pb-24 flex-1">
           <div className="text-center mb-10 md:mb-14 max-w-3xl mx-auto">
             <p className="text-secondary font-semibold text-sm uppercase tracking-wider mb-2">Programs</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3">Popular pathways</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3">{toTitleCase('Popular pathways')}</h2>
             <p className="text-gray-500 text-base md:text-lg leading-relaxed">
               From code to cloud, pick a concentration that matches your goals—each track blends theory, labs, and
               portfolio work.
@@ -63,6 +65,10 @@ export default function Home() {
             />
           </div>
         </section>
+      </RevealFlyIn>
+
+      <RevealFlyIn delay={0.06} className="w-full">
+        <PartnersSection />
       </RevealFlyIn>
 
       <RevealFlyIn delay={0.06} className="w-full">
