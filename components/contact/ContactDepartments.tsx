@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 
 export default function ContactDepartments() {
   return (
-    <section className="bg-slate-50 py-16">
+    <section className="bg-slate-50 py-12 md:py-16">
       <motion.div
         className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10"
         initial="hidden"
