@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { toTitleCase } from '@/lib/toTitleCase'
 import { cn } from '@/lib/utils'
 
 type Item = { id: string; title: string; time: string; tone?: 'info' | 'success' | 'warning' }
@@ -10,7 +11,7 @@ export function ActivityFeed({ items, title = 'Recent activity' }: { items: Item
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{toTitleCase(title)}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">
         {items.map((item, i) => (

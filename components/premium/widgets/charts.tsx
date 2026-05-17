@@ -16,6 +16,7 @@ import {
   YAxis,
 } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#6366f1', '#94a3b8']
 
@@ -30,7 +31,7 @@ export function ChartCard({ title, description, children, className }: ChartCard
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{toTitleCase(title)}</CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>
       <CardContent className="h-[280px] pt-2">{children}</CardContent>

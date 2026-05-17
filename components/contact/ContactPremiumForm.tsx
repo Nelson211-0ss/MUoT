@@ -6,6 +6,7 @@ import { CheckCircle2, Loader2, Send } from 'lucide-react'
 
 import FloatingField from '@/components/contact/ui/FloatingField'
 import GlassPanel from '@/components/contact/ui/GlassPanel'
+import { toTitleCase } from '@/lib/toTitleCase'
 import { FORM_DEPARTMENTS } from '@/lib/contact/content'
 import { fadeUp } from '@/components/contact/motion'
 
@@ -43,7 +44,7 @@ export default function ContactPremiumForm() {
     <GlassPanel className="border-slate-200/80 bg-white/95 p-6">
       <div className="mb-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Message us</p>
-        <h3 className="mt-1 text-2xl font-bold text-slate-900">Send a secure inquiry</h3>
+        <h3 className="mt-1 text-2xl font-bold text-slate-900">{toTitleCase('Send a secure inquiry')}</h3>
         <p className="mt-2 text-sm text-slate-600">
           UI preview — submissions are simulated for this design build.
         </p>

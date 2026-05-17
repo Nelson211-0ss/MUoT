@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 
 import EcosystemPlaceholder from '@/components/portals/EcosystemPlaceholder'
+import { toTitleCase } from '@/lib/toTitleCase'
 import AdmissionManagementWorkspace from '@/components/admissions/AdmissionManagementWorkspace'
 import PortalDeskShell, { deskNavLinkClass } from '@/components/portals/PortalDeskShell'
 import LogoutButton from '@/components/LogoutButton'
@@ -295,7 +296,7 @@ export default function AdminDashboard({
           {section === 'people' && (
             <div className="space-y-10">
               <div>
-                <h2 className="font-bold text-primary text-xl">Accounts</h2>
+                <h2 className="font-bold text-primary text-xl">{toTitleCase('Accounts')}</h2>
                 <p className="text-sm text-gray-600 mt-1">
                   Provision student and lecturer identities for campus workflows — module rostering and teaching stay in Moodle.
                 </p>
@@ -358,7 +359,7 @@ export default function AdminDashboard({
           {section === 'students' && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-bold text-primary text-xl">Enrolled learners</h2>
+                <h2 className="font-bold text-primary text-xl">{toTitleCase('Enrolled learners')}</h2>
                 <p className="mt-1 text-sm text-gray-600">
                   Registrar view of STUDENT SSO accounts issued after enrollment · no staff or applicant rows.
                 </p>
@@ -401,7 +402,7 @@ export default function AdminDashboard({
           {section === 'directory' && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-bold text-primary text-xl">Campus-wide directory</h2>
+                <h2 className="font-bold text-primary text-xl">{toTitleCase('Campus-wide directory')}</h2>
                 <p className="text-sm text-gray-600 mt-1">Filtered by RBAC scopes — identities stay isolated per GDPR-style policy.</p>
               </div>
               <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -492,7 +493,7 @@ export default function AdminDashboard({
           {section === 'audit' && (
             <div className="space-y-4">
               <div>
-                <h2 className="font-bold text-primary text-xl">Audit trail</h2>
+                <h2 className="font-bold text-primary text-xl">{toTitleCase('Audit trail')}</h2>
                 <p className="text-sm text-gray-600 mt-1">Immutable instrumentation for SOC-style reviews.</p>
               </div>
               {auditLoading ? (

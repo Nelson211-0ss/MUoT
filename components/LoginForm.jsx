@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 
 import { isHoDRoleSlug, isManagementRoleSlug } from '@/lib/rbac/constants'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 const INTENT_HEADER = {
   student: { Icon: GraduationCap, eyebrow: 'Student sign-in' },
@@ -221,7 +222,7 @@ export default function LoginForm() {
 
         <div className="px-5 py-7 sm:px-9 sm:py-9">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold tracking-tight text-primary sm:text-[1.65rem]">{title}</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-primary sm:text-[1.65rem]">{toTitleCase(title)}</h2>
             <p className="mx-auto mt-2 max-w-[22rem] text-sm leading-relaxed text-slate-600">{subtitle}</p>
           </div>
 

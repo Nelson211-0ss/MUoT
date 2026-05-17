@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react'
 
+import { toTitleCase } from '@/lib/toTitleCase'
+
 async function refreshApplication() {
   const res = await fetch('/api/admissions/me/application')
   const data = await res.json()
@@ -202,7 +204,7 @@ function PersonalStep({ draft, onNext, pendingSave }) {
       }}
     >
       <div className="md:col-span-2">
-        <h2 className="text-lg font-bold text-primary dark:text-secondary">Personal information</h2>
+        <h2 className="text-lg font-bold text-primary dark:text-secondary">{toTitleCase('Personal information')}</h2>
         <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Passport uploads happen in Documents.</p>
       </div>
       <label className="text-sm font-semibold md:col-span-2 grid gap-1">
@@ -297,7 +299,7 @@ function AcademicStep({ draft, onPrev, pendingSave, onContinue }) {
       }}
     >
       <div className="md:col-span-2 flex items-start justify-between">
-        <h2 className="text-lg font-bold text-primary dark:text-secondary">Academic background</h2>
+        <h2 className="text-lg font-bold text-primary dark:text-secondary">{toTitleCase('Academic background')}</h2>
         <button type="button" onClick={() => onPrev()} className="text-xs font-semibold text-blue-700 dark:text-secondary">
           Back
         </button>
@@ -379,7 +381,7 @@ function ProgramStep({ draft, facultyPrograms, intakes, programOptions, onPrev, 
       }}
     >
       <div className="flex items-start justify-between">
-        <h2 className="text-lg font-bold text-primary dark:text-secondary">Program selection</h2>
+        <h2 className="text-lg font-bold text-primary dark:text-secondary">{toTitleCase('Program selection')}</h2>
         <button type="button" className="text-xs font-semibold text-blue-700 dark:text-secondary" onClick={onPrev}>
           Back
         </button>
@@ -488,7 +490,7 @@ function DocsStep({ draft, pendingSave, onPrev }) {
     <section className="space-y-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-white/10 p-6 shadow-sm">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-bold text-primary dark:text-secondary">Document uploads</h2>
+          <h2 className="text-lg font-bold text-primary dark:text-secondary">{toTitleCase('Document uploads')}</h2>
           <p className="text-xs text-gray-500 mt-2">PDF/JPG/PNG · max ~5 MB · stored under encrypted disk paths.</p>
         </div>
         <button type="button" onClick={onPrev} className="text-xs font-semibold text-blue-700 dark:text-secondary">
@@ -556,7 +558,7 @@ function ReviewStep({ draft, pendingSave, onPrev, onSubmit }) {
     <section className="space-y-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-white/10 p-6 shadow-sm">
       <div className="flex justify-between items-start gap-4">
         <div>
-          <h2 className="text-lg font-bold text-primary dark:text-secondary">Review & certify</h2>
+          <h2 className="text-lg font-bold text-primary dark:text-secondary">{toTitleCase('Review & certify')}</h2>
           <p className="text-xs text-gray-500 mt-1">By submitting you affirm that your declarations are truthful.</p>
         </div>
         <button type="button" onClick={onPrev} className="text-xs font-semibold text-blue-700 dark:text-secondary">

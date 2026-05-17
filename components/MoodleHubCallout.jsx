@@ -1,5 +1,7 @@
 'use client'
 
+import { toTitleCase } from '@/lib/toTitleCase'
+
 /** Primary CTA pointing at the institutional Moodle; URL from env never logged. */
 export default function MoodleHubCallout({
   headline = 'Learning, quizzes & course resources',
@@ -9,7 +11,7 @@ export default function MoodleHubCallout({
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-primary">{headline}</h2>
+      <h2 className="text-lg font-bold text-primary">{toTitleCase(headline)}</h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p>
 
       <div className="mt-5 flex flex-wrap gap-3">
