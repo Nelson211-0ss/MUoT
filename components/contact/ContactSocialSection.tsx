@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { SOCIAL_BRAND_ICONS } from '@/components/icons/SocialBrandIcons'
 import { FOOTER_SOCIAL } from '@/lib/footer/data'
 import { fadeUp, stagger } from '@/components/contact/motion'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 const GRADIENTS = [
   'from-blue-600/20 to-blue-900/5',
@@ -27,7 +28,7 @@ export default function ContactSocialSection() {
       >
         <motion.div variants={fadeUp} custom={0} className="mb-8">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Community</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Follow MUT online</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{toTitleCase('Follow MUT online')}</h2>
         </motion.div>
         <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {FOOTER_SOCIAL.map(({ label, href, network }, i) => {

@@ -6,6 +6,7 @@ import { Calendar, Headphones, MapPin, Sparkles } from 'lucide-react'
 
 import GlassPanel from '@/components/contact/ui/GlassPanel'
 import { CONTACT_HERO, CONTACT_STATS } from '@/lib/contact/content'
+import { toTitleCase } from '@/lib/toTitleCase'
 import { fadeUp, stagger } from '@/components/contact/motion'
 
 export default function ContactHero() {
@@ -56,7 +57,7 @@ export default function ContactHero() {
               custom={1}
               className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
             >
-              {CONTACT_HERO.title}
+              {toTitleCase(CONTACT_HERO.title)}
               <span className="text-secondary">.</span>
             </motion.h1>
             <motion.p

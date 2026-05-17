@@ -6,6 +6,7 @@ import { AlertCircle, Clock, Ticket, Zap } from 'lucide-react'
 import GlassPanel from '@/components/contact/ui/GlassPanel'
 import { RESPONSE_CARDS, SUPPORT_CATEGORIES } from '@/lib/contact/content'
 import { fadeUp, stagger } from '@/components/contact/motion'
+import { toTitleCase } from '@/lib/toTitleCase'
 import { cn } from '@/lib/utils'
 
 export default function ContactSupport() {
@@ -21,7 +22,9 @@ export default function ContactSupport() {
         <motion.div variants={fadeUp} custom={0} className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <motion.div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Support center</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Smart support experience</h2>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+              {toTitleCase('Smart support experience')}
+            </h2>
           </motion.div>
           <GlassPanel className="inline-flex items-center gap-2 border-red-500/20 bg-red-500/5 px-4 py-2">
             <AlertCircle className="h-4 w-4 text-red-500" aria-hidden />

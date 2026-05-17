@@ -6,6 +6,7 @@ import { ChevronDown, Search } from 'lucide-react'
 
 import { CONTACT_FAQS, FAQ_CATEGORIES, type FaqCategory } from '@/lib/contact/content'
 import { fadeUp, stagger } from '@/components/contact/motion'
+import { toTitleCase } from '@/lib/toTitleCase'
 import { cn } from '@/lib/utils'
 
 export default function ContactFaqSection() {
@@ -33,7 +34,7 @@ export default function ContactFaqSection() {
       >
         <motion.div variants={fadeUp} custom={0} className="mb-8 max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">FAQ</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Answers, instantly</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{toTitleCase('Answers, instantly')}</h2>
         </motion.div>
 
         <motion.div variants={fadeUp} custom={1} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">

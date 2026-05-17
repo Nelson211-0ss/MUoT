@@ -7,6 +7,7 @@ import ContactCampusMap from '@/components/contact/ContactCampusMap'
 import GlassPanel from '@/components/contact/ui/GlassPanel'
 import { CAMPUS_LOCATION } from '@/lib/contact/content'
 import { fadeUp, stagger } from '@/components/contact/motion'
+import { toTitleCase } from '@/lib/toTitleCase'
 
 export default function ContactLocation() {
   return (
@@ -20,7 +21,7 @@ export default function ContactLocation() {
       >
         <motion.div variants={fadeUp} custom={0} className="mb-10 max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Campus</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Visit MUT in Magwi</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{toTitleCase('Visit MUT in Magwi')}</h2>
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-5">
