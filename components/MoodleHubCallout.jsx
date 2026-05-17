@@ -20,7 +20,7 @@ export default function MoodleHubCallout({
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white hover:opacity-90"
           >
-            Open Moodle LMS
+            Open MUT E-Learning
           </a>
         ) : (
           <p className="rounded-xl border border-secondary/50 bg-secondary/10 px-3 py-2 text-xs font-semibold text-primary">

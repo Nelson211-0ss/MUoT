@@ -281,7 +281,7 @@ export default function AdminDashboard({
                 <StatCard label="Users total" value={String(users.length)} icon={UsersRound} />
                 <StatCard label="Students" value={String(students.length)} icon={School} />
                 <StatCard label="Lecturers" value={String(lecturers.length)} icon={GraduationCap} />
-                <StatCard label="Moodle LMS" value="External" hint="Set NEXT_PUBLIC_MOODLE_URL" icon={BookOpen} />
+                <StatCard label="MUT E-Learning" value="External" hint="Set NEXT_PUBLIC_MOODLE_URL" icon={BookOpen} />
               </div>
               <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
                 <span className="font-semibold text-slate-800">Elevated roles on campus:</span> {staffCount}

@@ -3,7 +3,7 @@ import PageLayout from '@/components/PageLayout'
 import MoodleHubCallout from '@/components/MoodleHubCallout'
 
 export const metadata = {
-  title: 'Moodle LMS | Magwi University of Technology',
+  title: 'MUT E-Learning | Magwi University of Technology',
   description:
     'Access the institutional Moodle platform for lessons, quizzes, assignments, forums, grades, and course resources.',
 }
@@ -16,7 +16,7 @@ export default function MoodleLauncherPage() {
   }
 
   return (
-    <PageLayout title="Moodle LMS" subtitle="Course delivery happens here — MUoT web provides identity & governance only.">
+    <PageLayout title="MUT E-Learning" subtitle="Course delivery happens here — MUoT web provides identity & governance only.">
       <MoodleHubCallout />
       <p className="mt-6 text-sm text-gray-600 max-w-2xl leading-relaxed">
         When ICT provisions <code className="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">NEXT_PUBLIC_MOODLE_URL</code> in your

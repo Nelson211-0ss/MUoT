@@ -54,7 +54,7 @@ const NAV_AFTER_EL = [
 const E_LEARNING_MENU = [
   {
     id: 'moodle',
-    label: 'Moodle LMS',
+    label: 'MUT E-Learning',
     href: '/moodle',
     subtitle: 'Courses, quizzes, forums, grading & learning resources',
     Icon: BookOpen,
@@ -200,7 +200,7 @@ export default function Navbar() {
 
           <NavHoverDropdown label="E-Learning" active={elearningActive}>
             <div role="menu" className="w-[15.75rem] rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
-              <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">Moodle LMS</p>
+              <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">MUT E-Learning</p>
               {E_LEARNING_MENU.map(({ id, label, href, subtitle, Icon }) => (
                 <Link
                   key={id}

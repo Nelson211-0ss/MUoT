@@ -1,25 +1,21 @@
-import PageLayout from '@/components/PageLayout'
-import InfoCard from '@/components/InfoCard'
-import { Mail, Phone, MapPin } from 'lucide-react'
-import ContactForm from '@/components/ContactForm'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import ContactPage from '@/components/contact/ContactPage'
+import { AnimateRouteShell } from '@/components/PageMotion'
+
+export const metadata = {
+  title: 'Contact | Magwi University of Technology',
+  description: 'Connect with MUT admissions, registrar, ICT helpdesk, and campus services.',
+}
 
 export default function Contact() {
   return (
-    <PageLayout
-      title="Contact Us"
-      subtitle="We are here to help with admissions, programs, and student support."
-    >
-      <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
-        <div>
-          <div className="grid sm:grid-cols-1 gap-5 mb-10">
-            <InfoCard icon={Mail} title="Email" desc="info@mut.edu" />
-            <InfoCard icon={Phone} title="Phone" desc="+211 XXX XXX XXX" />
-            <InfoCard icon={MapPin} title="Location" desc="Magwi, South Sudan" />
-          </div>
-        </div>
-
-        <ContactForm />
-      </div>
-    </PageLayout>
+    <main data-portal-scope="light" className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+      <AnimateRouteShell className="flex flex-1 flex-col">
+        <ContactPage />
+        <Footer />
+      </AnimateRouteShell>
+    </main>
   )
 }

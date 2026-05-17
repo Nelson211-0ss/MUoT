@@ -38,7 +38,7 @@ export const FOOTER_QUICK_LINKS: FooterLinkGroup = {
     { label: 'Home', href: '/' },
     { label: 'Admissions', href: '/admissions' },
     { label: 'Academics', href: '/programs' },
-    { label: 'Moodle LMS', href: '/moodle' },
+    { label: 'MUT E-Learning', href: '/moodle' },
     { label: 'Student Portal', href: '/student-portal' },
     { label: 'Library', href: '/courses' },
     { label: 'Contact Us', href: '/contact' },
