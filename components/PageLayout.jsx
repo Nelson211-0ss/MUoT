@@ -21,8 +21,8 @@ export default function PageLayout({
         <div
           className={
             showBanner
-              ? 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 flex-1 w-full'
-              : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-12 md:pb-16 flex-1 w-full'
+              ? 'mx-auto w-full min-w-0 max-w-[1400px] flex-1 px-4 py-10 sm:px-6 sm:py-12 md:py-16 lg:px-10'
+              : 'mx-auto w-full min-w-0 max-w-[1400px] flex-1 px-4 pt-8 pb-10 sm:px-6 sm:pb-12 md:pb-16 lg:px-10'
           }
         >
           {children}
